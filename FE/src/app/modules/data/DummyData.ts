@@ -1,0 +1,61 @@
+
+const dummyData = [
+    {
+        no: 1,
+        kode: '2233344',
+        namaProduk: 'KOPI KAPAL APA',
+        harga: 'RP 2.500',
+        harga2: 'Rp 3.500',
+        jumlah: '1 pcs',
+        jumlah2:'5 box',
+        diskon: '',
+        subtotal: 'RP 2.500',
+    },
+    {
+        no: 2,
+        kode: '2233355',
+        namaProduk: 'MARIPAK',
+        harga: 'RP 1.000',
+        jumlah: 1,
+        diskon: '',
+        subtotal: 'RP 1.000',
+    },
+    {
+        no: 3,
+        kode: '2233366',
+        namaProduk: 'MIE INSTAN',
+        harga: 'RP 2.000',
+        jumlah: 1,
+        diskon: '',
+        subtotal: 'RP 3.500',
+    },
+    {
+        no: 4,
+        kode: '2233377',
+        namaProduk: 'MINYAK GORENG',
+        harga: 'RP 15.000',
+        jumlah: 1,
+        diskon: '',
+        subtotal: 'RP 15.000',
+    },
+    {
+        no: 5,
+        kode: '8994796281601',
+        namaProduk: 'AROMA BOLD',
+        harga: 'RP 15.000',
+        jumlah: 1,
+        diskon: '',
+        subtotal: 'RP 15.000',
+    },
+    {
+        no: 6,
+        kode: '8997018320683',
+        namaProduk: 'GAJAH BARU',
+        harga: 'RP 15.000',
+        jumlah: 1,
+        diskon: '',
+        subtotal: 'RP 15.000',
+    },
+];
+
+export default dummyData;

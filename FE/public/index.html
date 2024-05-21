@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700">
+  <title>POS</title>
+  <link rel="shortcut icon" href="%PUBLIC_URL%/logo2.svg" />
+  <link rel="stylesheet" id="layout-styles-anchor" href="%PUBLIC_URL%/splash-screen.css" />
+</head>
+
+<body id="kt_body" class="page-loading splash-screen mat-typography">
+  <noscript>You need to enable JavaScript to run this app.</noscript>
+  <!--begin::Theme mode setup on page load-->
+  <script>
+    if (document.documentElement) {
+      // Set the theme mode to "light"
+      var themeMode = "light";
+
+      document.documentElement.setAttribute("data-theme", themeMode);
+    }
+
+  </script>
+  <!--end::Theme mode setup on page load-->
+
+  <div id="root"></div>
+  <div id="splash-screen" class="splash-screen">
+    <img src="%PUBLIC_URL%/logo2.svg" alt="Kasir Hardjo logo" />
+    <span>Loading ...</span>
+  </div>
+  <div id="root-modals"></div>
+</body>
+
+</html>
