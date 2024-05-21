@@ -1,6 +1,6 @@
 <div align="center">
 </br>
-<h1 style="text-align: center;"> <span style="color: #4682b4;">Point Of Sales</span></h1>
+<h1 style="text-align: center;"> <span style="color: #4682b4;">WebApp Kasir</span></h1>
 </div>
 
 ## UI Website 
