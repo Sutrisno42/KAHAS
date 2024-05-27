@@ -18,11 +18,12 @@ class DataShiftController extends Controller
         $validator = Validator::make(request()->all(), [
             'cashier_name' => 'nullable|string',
             'date' => 'nullable|date',
+            'store_id' => 'nullable|exists:store,id',
             'arrange_by' => 'nullable|in:cashier_name,date',
             'sort_by' => 'nullable|in:asc,desc',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -32,22 +33,28 @@ class DataShiftController extends Controller
 
         $dataShift = new DataShift;
 
-        if($user->role == 'admin' || $user->role == 'warehouse'){
-            if(request()->has('date') && !empty(request()->date)){
+        if ($user->role == 'admin' || $user->role == 'warehouse') {
+            if (request()->has('date') && !empty(request()->date)) {
                 $dataShift = $dataShift->whereDate('start_date', request()->date);
             }
 
-            if(request()->has('cashier_name') && !empty(request()->cashier_name)){
-                $dataShift = $dataShift->whereHas('cashier', function($cashier) {
+            if (request()->has('cashier_name') && !empty(request()->cashier_name)) {
+                $dataShift = $dataShift->whereHas('cashier', function ($cashier) {
                     $cashier->where('name', 'like', '%' . request()->cashier_name . '%');
                 });
             }
 
-            if(request()->has('arrange_by') && !empty(request()->arrange_by)){
-                if(request()->arrange_by == 'date'){
+            if (request()->has('store_id') && !empty(request()->store_id)) {
+                $dataShift = $dataShift->whereHas('cashier.store', function ($query) {
+                    $query->where('id', request()->store_id);
+                });
+            }
+
+            if (request()->has('arrange_by') && !empty(request()->arrange_by)) {
+                if (request()->arrange_by == 'date') {
                     $dataShift = $dataShift->orderBy('start_date', request()->sort_by ? request()->sort_by : 'asc');
-                } else if (request()->arrange_by == 'cashier_name'){
-                    $dataShift = $dataShift->with(['cashier' => function($cashier){
+                } else if (request()->arrange_by == 'cashier_name') {
+                    $dataShift = $dataShift->with(['cashier' => function ($cashier) {
                         $cashier->orderBy('name', request()->sort_by ? request()->sort_by : 'asc');
                     }]);
                 } else {
@@ -55,9 +62,9 @@ class DataShiftController extends Controller
                 }
             }
 
-            $dataShift = $dataShift->with('cashier')->paginate(request()->limit ?? 10);
-        } else if($user->role == 'cashier'){
-            $dataShift = $dataShift->where('cashier_id', $user->id)->with('cashier')->paginate(request()->limit ?? 10);
+            $dataShift = $dataShift->with('cashier', 'cashier.store')->paginate(request()->limit ?? 10);
+        } else if ($user->role == 'cashier') {
+            $dataShift = $dataShift->where('cashier_id', $user->id)->with('cashier', 'cashier.store')->paginate(request()->limit ?? 10);
         } else {
             return response()->json([
                 'status' => 'error',
@@ -101,7 +108,7 @@ class DataShiftController extends Controller
             'initial_balance' => 'nullable|numeric',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -112,7 +119,7 @@ class DataShiftController extends Controller
         $user = auth('sanctum')->user();
         $check = DataShift::where('cashier_id', $user->id)->where('end_date', null)->first();
 
-        if(!$check){
+        if (!$check) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sesi shift belum ada',
@@ -124,11 +131,11 @@ class DataShiftController extends Controller
                 ->where('created_at', '<=', date('Y-m-d H:i:s'))
                 ->get();
 
-            $retur = ProductReturn::whereHas('transaction', function($transaction) use ($user){
-                        $transaction->where('cashier_id', $user->id)->where('status', 'paid');
-                    })->where('created_at', '>=', $check->start_date)
-                    ->where('created_at', '<=', date('Y-m-d H:i:s'))
-                    ->get();
+            $retur = ProductReturn::whereHas('transaction', function ($transaction) use ($user) {
+                $transaction->where('cashier_id', $user->id)->where('status', 'paid');
+            })->where('created_at', '>=', $check->start_date)
+                ->where('created_at', '<=', date('Y-m-d H:i:s'))
+                ->get();
 
             $check->update([
                 'end_date' => date('Y-m-d H:i:s'),
@@ -181,7 +188,7 @@ class DataShiftController extends Controller
     public function show(string $id)
     {
         //show data shift
-        $dataShift = DataShift::where('id', $id)->with('cashier')->get();
+        $dataShift = DataShift::where('id', $id)->with('cashier', 'cashier.store')->get();
 
         //data shift not found
         if (!$dataShift) {
@@ -212,7 +219,6 @@ class DataShiftController extends Controller
      */
     public function update(DataShiftRequest $request, string $id)
     {
-
     }
 
     /**
@@ -241,10 +247,11 @@ class DataShiftController extends Controller
         ], 200);
     }
 
-    public function checkSesion() {
-        $checkAda = DataShift::where('cashier_id', auth('sanctum')->user()->id)->where('end_date',null)->first();
+    public function checkSesion()
+    {
+        $checkAda = DataShift::where('cashier_id', auth('sanctum')->user()->id)->where('end_date', null)->first();
 
-        if($checkAda){
+        if ($checkAda) {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Sesi shift masih ada',
@@ -252,7 +259,7 @@ class DataShiftController extends Controller
                     'sesi' => 'active'
                 ]
             ], 200);
-        }else{
+        } else {
             return response()->json([
                 'status' => 'success',
                 'message' => 'Sesi shift belum ada',
@@ -263,12 +270,13 @@ class DataShiftController extends Controller
         }
     }
 
-    public function initialBalance(Request $request) {
+    public function initialBalance(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'initial_balance' => 'required|numeric',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -276,9 +284,9 @@ class DataShiftController extends Controller
             ], 400);
         }
 
-        $check = DataShift::where('cashier_id', auth('sanctum')->user()->id)->where('end_date',null)->first();
+        $check = DataShift::where('cashier_id', auth('sanctum')->user()->id)->where('end_date', null)->first();
 
-        if($check){
+        if ($check) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sesi shift sudah ada',
@@ -305,11 +313,12 @@ class DataShiftController extends Controller
         ], 200);
     }
 
-    public function recap() {
+    public function recap()
+    {
         $user = auth('sanctum')->user();
         $check = DataShift::where('cashier_id', $user->id)->where('end_date', null)->first();
 
-        if(!$check){
+        if (!$check) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Sesi shift belum ada',
@@ -321,7 +330,7 @@ class DataShiftController extends Controller
                 ->where('created_at', '<=', date('Y-m-d H:i:s'))
                 ->get();
 
-            $retur = ProductReturn::whereHas('transaction', function($transaction) use ($user){
+            $retur = ProductReturn::whereHas('transaction', function ($transaction) use ($user) {
                 $transaction->where('cashier_id', $user->id)->where('status', 'paid');
             })->where('created_at', '>=', $check->start_date)
                 ->where('created_at', '<=', date('Y-m-d H:i:s'))

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import usePageTitle from '../../functions/global/usePageTitle';
 import { Button, Modal } from 'react-bootstrap'
 import { KTCard } from '../../../_metronic/helpers'
-import { fetchCategories, showTransaksi } from '../../functions/global/api';
+import { fetchCategories, fetchStore, showTransaksi } from '../../functions/global/api';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { convertDate, convertIDR } from '../../functions/global';
@@ -13,12 +13,17 @@ interface Category {
     id: number;
     category_name: string;
 }
+interface Store {
+    id: number;
+    store_name: string;
+}
 
 const TransactionPage = () => {
     usePageTitle('Data Transaksi');
 
     const [transaksi, setTransaksi] = useState<any[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [store, setStore] = useState<Store[]>([]);
 
     const navigate = useNavigate();
     const handleReturnButtonClick = (transaction_id: number) => {
@@ -40,6 +45,9 @@ const TransactionPage = () => {
         fetchCategories().then((dataKategori) => {
             setCategories(dataKategori);
         });
+        fetchStore().then((dataToko) => {
+            setStore(dataToko);
+        });
 
         showData();
     }, []);
@@ -53,7 +61,7 @@ const TransactionPage = () => {
         date: '',
         nota_number: '',
         category_id: '',
-
+        store_id: '',
     });
 
     const handleSearch = (eventOrPageNumber: React.MouseEvent<HTMLButtonElement> | number) => {
@@ -65,6 +73,7 @@ const TransactionPage = () => {
                 date: newTransaksi.date,
                 nota_number: newTransaksi.nota_number,
                 category_id: newTransaksi.category_id,
+                store_id: newTransaksi.store_id,
                 status: status,
                 arrange_by: arrangeBy,
             };
@@ -101,19 +110,6 @@ const TransactionPage = () => {
                                     onChange={(e) => setNewTransaksi({ ...newTransaksi, date: e.target.value })} />
                             </div>
                             {/* <div className='col-3'>
-                                <label className='mb-2'>Arrange by</label>
-                                <select className="form-select"
-                                    name='modeProcess'
-                                    value={arrangeBy}
-                                    onChange={(e) => setArrangeBy(e.target.value)}
-                                >
-                                    <option value='nota_number'>No Nota</option>
-                                    <option value="category_id">Kategori</option>
-                                    <option value="grand_total">Sub Total</option>
-                                    <option value="date">Tanggal</option>
-                                </select>
-                            </div> */}
-                            <div className='col-3'>
                                 <label className='mb-2'>Status</label>
                                 <select className="form-select"
                                     name='modeProcess'
@@ -123,9 +119,8 @@ const TransactionPage = () => {
                                     <option value=''>Pilih Status</option>
                                     <option value='paid'>Terbayar</option>
                                     <option value="return">Pengembalian</option>
-                                    {/* <option value="hold">Tertahan</option> */}
                                 </select>
-                            </div>
+                            </div> */}
                             <div className='col-3'>
                                 <label className='mb-2'>Kategori</label>
                                 <select
@@ -138,6 +133,22 @@ const TransactionPage = () => {
                                     {categories.map((category) => (
                                         <option key={category.id} value={category.id}>
                                             {category.category_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className='col-3'>
+                                <label className='mb-2'>Toko</label>
+                                <select
+                                    className="form-select"
+                                    name="modeProcess"
+                                    value={newTransaksi.store_id}
+                                    onChange={(e) => setNewTransaksi({ ...newTransaksi, store_id: e.target.value })}
+                                >
+                                    <option value="">Pilih Toko</option>
+                                    {store.map((store) => (
+                                        <option key={store.id} value={store.id}>
+                                            {store.store_name}
                                         </option>
                                     ))}
                                 </select>
@@ -158,8 +169,8 @@ const TransactionPage = () => {
                                     <tr className='fw-bold text-muted'>
                                         <th align='center' className='min-w-30px'>No</th>
                                         <th className='min-w-150px'>No Nota</th>
+                                        <th className='min-w-150px'>Toko</th>
                                         <th className='min-w-120px'>Tanggal</th>
-                                        {/* <th className='min-w-140px'>Nominal</th> */}
                                         <th className='min-w-120px'>Sub Total</th>
                                     </tr>
                                 </thead>
@@ -170,7 +181,6 @@ const TransactionPage = () => {
                                         <tr key={index}>
                                             <td align="center">{index + 1}</td>
                                             <td>
-
                                                 <button type="button" className="btn btn-text">
                                                     <a className='text-dark fw-bold text-hover-primary fs-6'
                                                         onClick={() => handleReturnButtonClick(transaksi.id)}
@@ -178,18 +188,19 @@ const TransactionPage = () => {
                                                         {transaksi.nota_number}
                                                     </a>
                                                 </button>
+                                            </td>
+                                            <td>
+                                                <div className='text-dark fw-bold d-block mb-1 fs-6'>
+                                                    {transaksi.cashier?.store?.store_name}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className='text-dark fw-bold d-block mb-1 fs-6'>
+                                                    {convertDate(transaksi.date)}
+                                                    <span className='text-muted fw-semibold text-muted d-block fs-7'>Status: {transaksi.status}</span>
+                                                </div>
 
                                             </td>
-                                            <td className='text-dark fw-bold d-block mb-1 fs-6'>
-                                                {convertDate(transaksi.date)}
-                                                <span className='text-muted fw-semibold text-muted d-block fs-7'>Status: {transaksi.status}</span>
-                                            </td>
-                                            {/* <td >
-                                                <strong className='text-dark fw-bold d-block mb-1 fs-6'>
-                                                    {transaksi.total}
-                                                </strong>
-                                                <span className='text-muted fw-semibold text-muted d-block fs-7'>Pembayaran: {transaksi.payment_method}</span>
-                                            </td> */}
                                             <td>
                                                 <span style={{ fontSize: '14px' }} className='badge badge-light-success '>{convertIDR(transaksi.grand_total)} </span>
                                             </td>

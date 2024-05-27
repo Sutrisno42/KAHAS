@@ -3,7 +3,7 @@ import usePageTitle from '../../functions/global/usePageTitle';
 import { TablesWidget14 } from '../../../_metronic/partials/widgets/tables/TablesWidget14'
 import { Button, Modal } from 'react-bootstrap'
 import { KTCard } from '../../../_metronic/helpers'
-import { addNewMember, deletemember, postRecap, showHistoriRekap, showMember, updateMember } from '../../functions/global/api'
+import { addNewMember, deletemember, fetchStore, postRecap, showHistoriRekap, showMember, updateMember } from '../../functions/global/api'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios'
@@ -32,11 +32,16 @@ interface CashierData {
     total_transaction: number;
     total_transfer: number;
 }
+interface Store {
+    id: number;
+    store_name: string;
+}
 
 const HRekapshift = () => {
     usePageTitle('Histori Rekap Shift');
 
     const [member, setMember] = useState<any[]>([]);
+    const [store, setStore] = useState<Store[]>([]);
     const [showEditConfirmation, setShowEditConfirmation] = useState(false);
     const [memberToEdit, setMemberToEdit] = useState<number | null>(null);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
@@ -51,6 +56,7 @@ const HRekapshift = () => {
         address: '',
         default_discount: 0,
         date: '',
+        store_id: '',
 
     });
     const [arrangeBy, setArrangeBy] = useState('');
@@ -140,6 +146,7 @@ const HRekapshift = () => {
                 cashier_name: newMember.cashier_name,
                 code: newMember.code,
                 date: newMember.date,
+                store_id: newMember.store_id,
                 sort_by: sortBy,
                 arrange_by: arrangeBy,
             };
@@ -168,6 +175,9 @@ const HRekapshift = () => {
 
     useEffect(() => {
         showData();
+        fetchStore().then((dataToko) => {
+            setStore(dataToko);
+        });
     }, []);
 
     const openMemberConfirmation = (id_member: number) => {
@@ -207,6 +217,22 @@ const HRekapshift = () => {
                                 <input placeholder='' className='form-control' type='date'
                                     name='search'
                                     onChange={(e) => setNewMember({ ...newMember, date: e.target.value })} />
+                            </div>
+                            <div className='col-3'>
+                                <label className='mb-2'>Toko</label>
+                                <select
+                                    className="form-select"
+                                    name="modeProcess"
+                                    value={newMember.store_id}
+                                    onChange={(e) => setNewMember({ ...newMember, store_id: e.target.value })}
+                                >
+                                    <option value="">Pilih Toko</option>
+                                    {store.map((store) => (
+                                        <option key={store.id} value={store.id}>
+                                            {store.store_name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className='col-3'>
                                 <label className='mb-2'>Urutkan Berdasarkan</label>
@@ -258,12 +284,13 @@ const HRekapshift = () => {
                                 <tr className='fw-bold text-muted '>
                                     <th className='min-w-30px'>No</th>
                                     <th className='min-w-150px'>Nama Kasir</th>
-                                    <th className='min-w-150px'>Modal Awal</th>
+                                    <th className='min-w-300px'>Toko</th>
+                                    <th className='min-w-200px'>Modal Awal</th>
                                     <th className='min-w-150px text-center'>Tanggal</th>
-                                    <th className='min-w-120px text-center'>Jam Mulai</th>
-                                    <th className='min-w-120px text-center'>Jam Berakhir</th>
-                                    <th className='min-w-120px text-center'>Jumlah Retur</th>
-                                    <th className='min-w-120px text-center'>Jumlah Nota</th>
+                                    <th className='min-w-150px text-center'>Jam Mulai</th>
+                                    <th className='min-w-150px text-center'>Jam Berakhir</th>
+                                    <th className='min-w-150px text-center'>Jumlah Retur</th>
+                                    <th className='min-w-150px text-center'>Jumlah Nota</th>
                                 </tr>
                             </thead>
                             {/* end::Table head */}
@@ -281,6 +308,11 @@ const HRekapshift = () => {
                                                         {item.cashier?.name}
                                                     </a>
                                                 </button>
+                                            </td>
+                                            <td>
+                                                <strong className='text-dark fw-bold d-block mb-1 fs-6'>
+                                                    {item.cashier?.store?.store_name}
+                                                </strong>
                                             </td>
                                             <td>
                                                 <strong className='text-dark fw-bold d-block mb-1 fs-6'>

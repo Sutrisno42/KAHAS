@@ -5,11 +5,16 @@ import { Button, Modal } from 'react-bootstrap'
 import { BsFile, BsFillEyeFill, BsFillEyeSlashFill } from 'react-icons/bs';
 import { KTCard } from '../../../_metronic/helpers'
 import axios from 'axios'
-import { addNewKasir, deleteKasir, showKasir, updateKasir } from '../../functions/global/api'
+import { addCategory, addNewKasir, addStore, deleteKasir, fetchStore, showKasir, updateKasir } from '../../functions/global/api'
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const API_URL = process.env.REACT_APP_API_URL
+
+interface Store {
+    id: number;
+    store_name: string;
+}
 
 const MemberPage = () => {
     usePageTitle('Data Kasir');
@@ -26,12 +31,14 @@ const MemberPage = () => {
     const [sortBy, setSortBy] = useState('');
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
+    const [store, setStore] = useState<Store[]>([]);
     const [newKasir, setNewKasir] = useState({
         name: '',
         username: '',
         email: '',
         phone: '',
         password: '',
+        store_id: '',
     });
 
     const openEditConfirmation = (user_id: number) => {
@@ -61,6 +68,9 @@ const MemberPage = () => {
     };
 
     useEffect(() => {
+        fetchStore().then((dataToko) => {
+            setStore(dataToko);
+        });
         showData();
     }, []);
 
@@ -75,6 +85,7 @@ const MemberPage = () => {
                     email: selectedKasir.email,
                     phone: selectedKasir.phone,
                     password: selectedKasir.password,
+                    store_id: selectedKasir.store_id,
                 });
             }
         }
@@ -89,6 +100,7 @@ const MemberPage = () => {
                 username: newKasir.username,
                 email: newKasir.email,
                 phone: newKasir.phone,
+                store_id: newKasir.store_id,
                 password: newKasir.password,
 
             });
@@ -105,6 +117,7 @@ const MemberPage = () => {
                     email: '',
                     phone: '',
                     password: '',
+                    store_id: '',
                 });
 
             } else {
@@ -120,7 +133,7 @@ const MemberPage = () => {
     const simpanPerubahan = () => {
         if (kasirToEdit !== null) {
             console.log('Product Data:', kasirToEdit, newKasir);
-            updateKasir(kasirToEdit, newKasir.name, newKasir.username, newKasir.email, newKasir.phone, newKasir.password)
+            updateKasir(kasirToEdit, newKasir.name, newKasir.username, newKasir.email, newKasir.phone, newKasir.store_id, newKasir.password)
 
                 .then((response) => {
                     console.log('Data kasir diperbarui:', response);
@@ -199,6 +212,50 @@ const MemberPage = () => {
             window.location.reload();
         } catch (error) {
             console.error('Terjadi kesalahan saat mengubah status:', error);
+        }
+    };
+
+    const [showNewStoreInput, setShowNewStoreInput] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [newCategoryCode, setNewCategoryCode] = useState('');
+
+    const handleStoreChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const selectedStore = e.target.value;
+        if (selectedStore === '') {
+            setShowNewStoreInput(false);
+        } else if (selectedStore === 'new') {
+            setShowNewStoreInput(true);
+        } else {
+            setNewKasir({ ...newKasir, store_id: selectedStore });
+            setShowNewStoreInput(false);
+        }
+    };
+    const [newStore, setNewStore] = useState({
+        store_name: '',
+    });
+
+    const addToko = async () => {
+        try {
+            const response = await addStore({
+                store_name: newStore.store_name,
+            });
+            console.log('Response:', response);
+            if (response.status === 'success') {
+                console.log('Product created successfully');
+                showData();
+                setShowNewStoreInput(false);
+                setStore([...store, response.data]);
+                setStore([...store, response.data]);
+                toast.success('Toko telah ditambah', { position: toast.POSITION.TOP_RIGHT });
+                setNewStore({
+                    store_name: '',
+                });
+
+            } else {
+                console.error('Gagal menambahkan toko, respons:', response);
+            }
+        } catch (error) {
+            console.error('Terjadi kesalahan saat menambahkan toko:', error);
         }
     };
 
@@ -413,6 +470,13 @@ const MemberPage = () => {
                                             value={kasir.find(kasir => kasir.id === menejemenToAkun)?.phone || ''}
                                             disabled
                                         />
+                                        <label className="col-form-label">Toko:</label>
+                                        <input
+                                            type="text"
+                                            className="form-control mb-4"
+                                            value={kasir.find(kasir => kasir.id === menejemenToAkun)?.store?.store_name || ''}
+                                            disabled
+                                        />
                                         <label className="col-form-label">Role:</label>
                                         <input
                                             type="text"
@@ -466,6 +530,38 @@ const MemberPage = () => {
                                                 onChange={(e) => setNewKasir({ ...newKasir, phone: e.target.value })}
 
                                             />
+                                        </div>
+                                        <div className="mb-3">
+                                            <label className="col-form-label">Toko:</label>
+                                            <select
+                                                className="form-select"
+                                                name="modeProcess"
+                                                value={newKasir.store_id}
+                                                onChange={handleStoreChange}
+                                            >
+                                                <option value="">Pilih Toko</option>
+                                                {store.map((store) => (
+                                                    <option key={store.id} value={store.id}>
+                                                        {store.store_name}
+                                                    </option>
+                                                ))}
+                                                <option value="new">Lainnya</option>
+                                            </select>
+                                            {showNewStoreInput && (
+                                                <div>
+                                                    <label className="col-form-label">Nama Toko Baru:</label>
+                                                    <input
+                                                        type="text"
+                                                        placeholder="Isikan nama kategori baru"
+                                                        className="form-control mt-2"
+                                                        value={newStore.store_name}
+                                                        onChange={(e) => setNewStore({ ...newStore, store_name: e.target.value })}
+                                                    />
+                                                    <button type="button" className="btn btn-primary mt-2"
+                                                        onClick={addToko}
+                                                    >Tambah</button>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="mb-3">
                                             <label className="col-form-label">Password:</label>
@@ -539,6 +635,23 @@ const MemberPage = () => {
                                             value={newKasir.phone}
                                             onChange={event => setNewKasir({ ...newKasir, phone: event.target.value })}
                                         />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="col-form-label">Toko:</label>
+                                        <select
+                                            className="form-select"
+                                            name="modeProcess"
+                                            value={newKasir.store_id}
+                                            onChange={(e) => setNewKasir({ ...newKasir, store_id: e.target.value })}
+
+                                        >
+                                            <option value="">Pilih Toko</option>
+                                            {store.map((store) => (
+                                                <option key={store.id} value={store.id}>
+                                                    {store.store_name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div className="mb-3">
                                         <label className="col-form-label">Password:</label>

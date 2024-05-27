@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\StoreController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Menu\MenuController;
@@ -115,6 +116,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('product-repack', [App\Http\Controllers\ProductController::class, 'repack']);
 
     Route::apiResource('history-repack', App\Http\Controllers\HistoryRepackController::class)->only(['index', 'show']);
+
+    //store
+    Route::apiResource('store', StoreController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::post('store/{id}', [App\Http\Controllers\StoreController::class, 'update']);
 
     Route::apiResource('prediksi', PrediksiPenjualanController::class)->only(['index', 'store', 'show']);
 });

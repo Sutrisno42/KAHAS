@@ -29,11 +29,16 @@ class CashierController extends Controller
             $cashiers = $cashiers->where('email', 'like', '%' . request('email') . '%');
         }
 
+        if (request()->has('store_id') && request('store_id') != '') {
+            $cashiers = $cashiers->where('store_id', request('store_id'));
+        }
+
         if (request()->has('arrange_by') && request('arrange_by') != '') {
             $cashiers = $cashiers->orderBy(request('arrange_by'), request('sort_by') ?? 'asc');
         }
 
-        $cashiers = $cashiers->paginate($limit);
+        $cashiers = $cashiers->with('store')->paginate($limit);
+        // $cashiers = $cashiers->paginate($limit);
 
         return response()->json([
             'status' => 'success',
@@ -50,6 +55,7 @@ class CashierController extends Controller
             'email' => 'required|email|unique:users,email',
             'phone' => 'required|string|unique:users,phone',
             'password' => 'required|string',
+            'store_id' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -70,14 +76,16 @@ class CashierController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Data kasir berhasil ditambahkan',
-            'data' => $cashier,
+            // 'data' => $cashier,
+            'data' => $cashier->load('store')
         ], 200);
     }
 
     public function show($id)
     {
         $cashier = User::where('role', 'cashier')->find($id);
-        $cashier = $cashier->load(['transactions', 'dataShift']);
+        // $cashier = $cashier->load(['transactions', 'dataShift']);
+        $cashier = $cashier->load(['store', 'transactions', 'dataShift']);
 
         if (!$cashier) {
             return response()->json([
@@ -110,6 +118,7 @@ class CashierController extends Controller
             'email' => 'required|email|unique:users,email,' . $id,
             'phone' => 'required|string|unique:users,phone,' . $id,
             'password' => 'nullable|string',
+            'store_id' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -126,17 +135,22 @@ class CashierController extends Controller
         $validate['username'] = request('username');
         $validate['email'] = request('email');
         $validate['phone'] = request('phone');
+        $validate['store_id'] = request('store_id');
 
         if (!empty(request('password') && request('password') != '')) {
             $validate['password'] = bcrypt(request('password'));
         }
+
+        // Add store_id to the validated data
+        $validate['store_id'] = request('store_id');
 
         $cashier->update($validate);
 
         return response()->json([
             'status' => 'success',
             'message' => 'Data kasir berhasil diubah',
-            'data' => $cashier,
+            // 'data' => $cashier,
+            'data' => $cashier->load('store'),
         ], 200);
     }
 

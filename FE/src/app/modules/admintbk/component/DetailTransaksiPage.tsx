@@ -184,6 +184,7 @@ const DetailTransaksiPage: React.FC<DetailTransaksiPageProps> = ({ idmember, def
                                     <div className="card">
                                         <div className="card-body">
                                             <p className="card-text">Kasir : {productHistory.data?.cashier?.name}</p>
+                                            <p className="card-text">Toko : {productHistory.data?.cashier?.store?.store_name}</p>
                                             <p className="card-text">No Nota : {productHistory.data?.nota_number}</p>
                                             <p className="card-text">Tanggal : {productHistory.data?.date}</p>
                                             <p className="card-text">Jam : {productHistory.data?.hour}</p>

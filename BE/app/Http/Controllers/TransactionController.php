@@ -14,7 +14,7 @@ class TransactionController extends Controller
     public function index()
     {
         $user = auth('sanctum')->user();
-        $transactions = Transaction::with(['details', 'cashier', 'member'])->orderBy('created_at', 'desc');
+        $transactions = Transaction::with(['details', 'cashier', 'cashier.store', 'member'])->orderBy('created_at', 'desc');
         $limit = request()->limit ?? 10;
 
         $validator = Validator::make(request()->all(), [
@@ -22,11 +22,12 @@ class TransactionController extends Controller
             'date' => 'nullable|date',
             'nota_number' => 'nullable|string',
             'category_id' => 'nullable|exists:categories,id',
+            'store_id' => 'nullable|exists:store,id',
             'arrange_by' => 'nullable|in:nota_number,date,category_id,grand_total',
             'sort_by' => 'nullable|in:asc,desc',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Validasi gagal',
@@ -34,30 +35,36 @@ class TransactionController extends Controller
             ], 400);
         }
 
-        if(request()->status && request()->status != 'all' && !empty(request()->status)){
+        if (request()->status && request()->status != 'all' && !empty(request()->status)) {
             $transactions = $transactions->where('status', request()->status);
         }
 
-        if(request()->has('date') && !empty(request()->date)){
+        if (request()->has('date') && !empty(request()->date)) {
             $transactions = $transactions->where('date', request()->date);
         }
 
-        if(request()->has('nota_number') && !empty(request()->nota_number)){
+        if (request()->has('nota_number') && !empty(request()->nota_number)) {
             $transactions = $transactions->where('nota_number', 'like', '%' . request()->nota_number . '%');
         }
 
-        if(request()->has('category_id') && !empty(request()->category_id)){
-            $transactions = $transactions->whereHas('details', function($detail){
-                $detail->whereHas('product', function($product){
+        if (request()->has('category_id') && !empty(request()->category_id)) {
+            $transactions = $transactions->whereHas('details', function ($detail) {
+                $detail->whereHas('product', function ($product) {
                     $product->where('category_id', request()->category_id);
                 });
             });
         }
 
+        if (request()->has('store_id') && !empty(request()->store_id)) {
+            $transactions = $transactions->whereHas('cashier', function ($query) {
+                $query->where('store_id', request()->store_id);
+            });
+        }
+
         if (request()->has('arrange_by') && !empty(request()->arrange_by)) {
-            if(request()->arrange_by == 'category_id'){
-                $transactions = $transactions->whereHas('details', function($detail){
-                    $detail->whereHas('product', function($product){
+            if (request()->arrange_by == 'category_id') {
+                $transactions = $transactions->whereHas('details', function ($detail) {
+                    $detail->whereHas('product', function ($product) {
                         $product->orderBy('category_id', request()->sort_by ? request()->sort_by : 'asc');
                     });
                 });
@@ -66,9 +73,9 @@ class TransactionController extends Controller
             }
         }
 
-        if($user->role == 'admin' || $user->role == 'warehouse'){
+        if ($user->role == 'admin' || $user->role == 'warehouse') {
             $transactions = $transactions->paginate($limit);
-        } else if($user->role == 'cashier'){
+        } else if ($user->role == 'cashier') {
             $transactions = $transactions->where('cashier_id', $user->id)->paginate($limit);
         } else {
             return response()->json([
@@ -84,8 +91,9 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function show($id) {
-        $transaction = Transaction::with(['details', 'details.unit', 'cashier', 'member'])->findOrfail($id);
+    public function show($id)
+    {
+        $transaction = Transaction::with(['details', 'details.unit', 'cashier', 'cashier.store', 'member'])->findOrfail($id);
 
         return response()->json([
             'status' => 'success',
@@ -94,7 +102,8 @@ class TransactionController extends Controller
         ], 200);
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'member_id' => 'nullable|exists:members,id',
             'discount' => 'required|numeric',
@@ -104,7 +113,7 @@ class TransactionController extends Controller
             'products' => 'required|array',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => "Validasi gagal",
@@ -132,8 +141,8 @@ class TransactionController extends Controller
                 'change' => 0,
             ]);
 
-            if(isset($request->payment_discount) && $request->payment_discount > 0){
-                $transaction->payment_discount = ($request->total - $request->discount) * ($request->payment_discount/100);
+            if (isset($request->payment_discount) && $request->payment_discount > 0) {
+                $transaction->payment_discount = ($request->total - $request->discount) * ($request->payment_discount / 100);
             }
 
             $transaction->payment_method = $request->payment_method;
@@ -143,10 +152,10 @@ class TransactionController extends Controller
             $transaction->change = $request->change ?? 0;
             $transaction->save();
 
-            foreach($products as $product){
+            foreach ($products as $product) {
                 $check = Product::find($product['product_id']);
 
-                if(!$check){
+                if (!$check) {
                     \DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -154,7 +163,7 @@ class TransactionController extends Controller
                     ], 400);
                 }
 
-                if($check->stock < $product['quantity_unit']){
+                if ($check->stock < $product['quantity_unit']) {
                     \DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -178,7 +187,7 @@ class TransactionController extends Controller
                     'sub_total' => $product['sub_total'],
                 ]);
 
-                if($transaction->status != 'hold'){
+                if ($transaction->status != 'hold') {
                     $check->stock = $check->stock - $quantity_real;
                     $check->save();
                 }
@@ -194,7 +203,8 @@ class TransactionController extends Controller
         }
     }
 
-    public function useHold($id, Request $request) {
+    public function useHold($id, Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'member_id' => 'nullable|exists:members,id',
             'discount' => 'required|numeric',
@@ -204,7 +214,7 @@ class TransactionController extends Controller
             'products' => 'required|array',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'message' => "Validasi gagal",
@@ -214,7 +224,7 @@ class TransactionController extends Controller
 
         $transaction = Transaction::where('id', $id)->where('status', 'hold')->first();
 
-        if(!$transaction){
+        if (!$transaction) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Transaksi tidak ditemukan',
@@ -241,9 +251,9 @@ class TransactionController extends Controller
                 'change' => 0,
             ]);
 
-            if(isset($request->payment_discount) && $request->payment_discount > 0){
-//              $transaction->payment_discount = ($request->total - $request->discount) - (($request->total - $request->discount) * ($request->payment_discount/100));
-                $transaction->payment_discount = ($request->total - $request->discount) * ($request->payment_discount/100);
+            if (isset($request->payment_discount) && $request->payment_discount > 0) {
+                //              $transaction->payment_discount = ($request->total - $request->discount) - (($request->total - $request->discount) * ($request->payment_discount/100));
+                $transaction->payment_discount = ($request->total - $request->discount) * ($request->payment_discount / 100);
             }
 
             $transaction->payment_method = $request->payment_method;
@@ -255,10 +265,10 @@ class TransactionController extends Controller
 
             $transaction->details()->delete();
 
-            foreach($products as $product){
+            foreach ($products as $product) {
                 $check = Product::find($product['product_id']);
 
-                if(!$check){
+                if (!$check) {
                     \DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -266,7 +276,7 @@ class TransactionController extends Controller
                     ], 400);
                 }
 
-                if($check->stock < $product['quantity_unit']){
+                if ($check->stock < $product['quantity_unit']) {
                     \DB::rollBack();
                     return response()->json([
                         'status' => 'error',
@@ -304,10 +314,11 @@ class TransactionController extends Controller
         }
     }
 
-    private function generateNotaNumber() {
+    private function generateNotaNumber()
+    {
         $lastTransaction = Transaction::orderBy('created_at', 'desc')->where('date', date('Y-m-d'))->first();
 
-        if($lastTransaction){
+        if ($lastTransaction) {
             $lastNotaNumber = $lastTransaction->nota_number;
             $lastNumber = explode('-', $lastNotaNumber)[2];
             $newNumber = intval($lastNumber) + 1;
@@ -316,7 +327,7 @@ class TransactionController extends Controller
         } else {
             $newNumber = 1;
             $newNumber = str_pad($newNumber, 5, '0', STR_PAD_LEFT);
-            $newNotaNumber = 'TRX-'. date('Ymd') . '-' . $newNumber;
+            $newNotaNumber = 'TRX-' . date('Ymd') . '-' . $newNumber;
         }
 
         return $newNotaNumber;

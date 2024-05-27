@@ -64,6 +64,13 @@ export const ADDCATEGORY_URL = `${API_URL}/master/category`
 export const UPDATECATEGORY_URL = `${API_URL}/master/category/:category_id`
 export const DELETECATEGORY_URL = `${API_URL}/master/category/:category_id`
 
+/* STORE */
+export const STORE_URL = `${API_URL}/store`
+// export const SEARCHSTORE_URL = `${API_URL}/store?store_name=&code=&arrange_by=&sort_by=`
+export const ADDSTORE_URL = `${API_URL}/store`
+export const UPDATESTORE_URL = `${API_URL}/store/:store_id`
+export const DELETESTORE_URL = `${API_URL}/store/:store_id`
+
 /* UNIT */
 export const UNIT_URL = `${API_URL}/master/unit`
 export const UPDATEUNIT_URL = `${API_URL}/master/unit/{id_unit}`
@@ -501,17 +508,18 @@ export function showKasir() {
     return axios.get(SHOWKASIR_URL)
         .then(response => response.data.data.data);
 }
-export function addNewKasir(newAkunData: { name: string; username: string; email: string; phone: string; password: string }) {
+export function addNewKasir(newAkunData: { name: string; username: string; email: string; phone: string; store_id: string; password: string }) {
     return axios.post(ADDKASIR_URL, newAkunData)
         .then(response => response.data);
 }
-export function updateKasir(id: number, name: string, username: string, email: string, phone: string, password: string) {
+export function updateKasir(id: number, name: string, username: string, email: string, phone: string, store_id: string, password: string) {
     const url = UPDATEKASIR_URL.replace(':user_id', id.toString());
     return axios.post(url, {
         name,
         username,
         email,
         phone,
+        store_id,
         password,
     }).then(response => response.data);
 }
@@ -766,3 +774,36 @@ export function getSearchData2() {
     return axios.get(PENCARIAN_DATA)
         .then(response => response.data.data);
 }
+
+/* STORE */
+export async function fetchStore() {
+    try {
+        const response = await axios.get(STORE_URL);
+        return response.data.data;
+    } catch (error) {
+        console.error('Gagal mengambil data kategori', error);
+        return [];
+    }
+}
+
+export function addStore(newStore: {
+    store_name: string;
+}) {
+    return axios.post(ADDSTORE_URL, newStore)
+        .then(response => response.data);
+}
+
+// export function deleteCategory(id_product: number) {
+//     return axios.delete(`${API_URL}/master/category/${id_product}`, {
+
+//     });
+// }
+
+// export function updateCategory(id: number, category_name: string, code: string,) {
+//     const url = UPDATECATEGORY_URL.replace(':category_id', id.toString());
+//     return axios.post(url, {
+//         category_name,
+//         code,
+//     })
+//         .then(response => response.data);
+// }

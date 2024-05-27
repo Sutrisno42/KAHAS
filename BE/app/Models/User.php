@@ -25,6 +25,7 @@ class User extends Authenticatable
         'username',
         'phone',
         'role',
+        'store_id',
         'is_active',
     ];
 
@@ -55,6 +56,11 @@ class User extends Authenticatable
     public function permissions()
     {
         return $this->hasMany(Permission::class, 'role', 'role');
+    }
+
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     public function transactions()

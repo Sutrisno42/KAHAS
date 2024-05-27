@@ -8,7 +8,6 @@ import { Logout, AuthPage, useAuth } from '../modules/auth'
 import Dashboard from '../pages/cassier/Dashboard'
 import { App } from '../App'
 import CekHarga from '../pages/cekhargaa/CekHarga'
-import { Super } from '../modules/super/components/super'
 
 const { PUBLIC_URL } = process.env
 
@@ -60,9 +59,8 @@ const AppRoutes: FC = () => {
             </>
           ) : (
             <>
-              <Route path='toko' element={<Super />} />
               <Route path='auth/*' element={<AuthPage />} />
-              <Route path='*' element={<Navigate to='/toko' />} />
+              <Route path='*' element={<Navigate to='/auth' />} />
             </>
           )}
         </Route>
