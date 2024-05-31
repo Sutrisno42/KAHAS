@@ -62,13 +62,6 @@ const Label = () => {
         }
     };
 
-    // const handleSelectProduct = (selectedProduct: Product) => {
-    //     setSelectedIndex(selectedProduct.id);
-    //     setSelectedProducts([selectedProduct]);
-
-    //     setSearchValue('');
-    //     setFilteredData([]);
-    // };
     const handleSelectProduct = (selectedProduct: Product) => {
         // Check if the product is already selected
         if (!selectedProducts.some((product) => product.id === selectedProduct.id)) {
@@ -83,49 +76,6 @@ const Label = () => {
     const handleRemoveItem = (productId: number) => {
         setSelectedProducts((prevSelected) => prevSelected.filter((product) => product.id !== productId));
     };
-
-    // const handleCreateData = async () => {
-    //     const firstSelectedProduct = selectedProducts[0];
-
-    //     if (firstSelectedProduct) {
-    //         const packingDateInput = document.getElementById(`packing_date-${firstSelectedProduct.id}`) as HTMLInputElement;
-    //         const quantityInput = document.getElementById(`total-${firstSelectedProduct.id}`) as HTMLInputElement;
-
-    //         const packingDate = packingDateInput.value;
-    //         const quantity = parseInt(quantityInput.value, 10);
-
-    //         console.log('Request Body:', {
-    //             product_id: firstSelectedProduct.product_name,
-    //             total: quantity,
-    //             packing_date: packingDate,
-    //         });
-    //         let datas = []
-    //         datas.push(firstSelectedProduct.id)
-    //         try {
-    //             const response = await axios.post(
-    //                 `${API_URL}/product-label`,
-    //                 {
-    //                     product_id: datas,
-    //                     total: quantity,
-    //                     expired_date: packingDate,
-    //                 },
-    //                 {
-    //                     headers: {
-    //                         'Content-Type': 'application/json',
-    //                     },
-    //                 }
-    //             );
-    //             response.data.hideProductCode = false;
-
-    //             console.log('Data created successfully:', response.data);
-    //             setCreatedData(response.data);
-    //             setData([...data, response.data]);
-    //             printLabel(response.data.data);
-    //         } catch (error) {
-    //             console.error('Error creating data:', error);
-    //         }
-    //     }
-    // };
 
     const [totalQuantity, setTotalQuantity] = useState<number>(1);
 
@@ -152,113 +102,7 @@ const Label = () => {
             console.error('An error occurred while creating labels:', error);
         }
     };
-    // const printLabel = (labelData: { product_code: string; product_name: any; expired_date: string; }[]) => {
-    //     const printWindow = window.open('', '_blank');
-    
-    //     if (!printWindow) {
-    //         console.error('Unable to open print window.');
-    //         return;
-    //     }
-    
-    //     printWindow.document.open();
-    //     printWindow.document.write(`
-    //         <html>
-    //             <head>
-    //                 <style>
-    //                     /* Add your print styles here */
-    //                     @media print {
-    //                         @page {
-    //                             margin: 0px;
-    //                             padding: 0px;
-    //                             size: 100vh;
-    //                         }
-    //                     }
-    //                     body {
-    //                         font-family: Arial, sans-serif;
-    //                         text-align: center;
-    //                     }
-    //                     .label-container {
-    //                         display: flex;
-    //                         flex-wrap: wrap;
-    //                         justify-content: center;
-    //                         align-items: center;
-    //                         margin: 0 auto;
-    //                         width: 30%;
-    //                         max-width: 500px;
-    //                     }
-    //                     .label-content {
-    //                         box-sizing: border-box;
-    //                         padding: 5px;
-    //                         margin: 5px 0 10px;
-    //                         height: auto;
-    //                     }
-    //                     h1 {
-    //                         padding: 0;
-    //                         margin: 0;
-    //                         max-width: 100%; 
-    //                         font-weight: bold;
-    //                         white-space: nowrap; 
-    //                         text-overflow: ellipsis;
-    //                         text-align: center;
-    //                         font-size: 48px; 
-    //                     }
-    //                     .exp {
-    //                         padding: 0;
-    //                         margin: 0;
-    //                         font-weight: bold;
-    //                         font-size: 35px;
-    //                     }
-    //                     .barcode {
-    //                         width: 90%;
-    //                         height: 130px;
-    //                         margin: 0;
-    //                         padding: 0;
-    //                     }
-    //                     .product-code {
-    //                         padding: 0;
-    //                         margin: 2px;
-    //                         font-weight: bold;
-    //                         font-size: 48px; 
-    //                     }
-    //                     .pcode {
-    //                         margin-bottom: 5px;
-    //                     }
-    //                 </style>
-    //             </head>
-    //             <body>
-    //                 ${labelData.map((product: { product_code: string; product_name: any; expired_date: string; }) => {
-    //                     const canvas = document.createElement('canvas');
-    //                     canvas.style.padding = '0'
-    //                     JsBarcode(canvas, product.product_code, { width: 4, height: 50, displayValue: false, margin: 0 });
-    //                     const barcodeDataURL = canvas.toDataURL();
-    
-    //                     return `
-    //                         <div class='label-container'>
-    //                             <div class='label-content'>
-    //                                 <h1>${product.product_name}</h1>
-    //                                 <p class="exp">EXP ${formatDate(product.expired_date)}</p>
-    //                                 <img class="barcode" src=${barcodeDataURL}  alt="Barcode" />
-    //                                 <p class="product-code">${product.product_code}</p>
-    //                                 <p class="pcode">&nbsp;</p>
-    //                             </div>
-    //                         </div>
-    //                     `;
-    //                 }).join('')}
-    //                 <script>
-    //                     window.onload = function() {
-    //                         window.print();
-    //                         window.onafterprint = function() {
-    //                             window.close();
-    //                         };
-    //                     };
-    //                 </script>
-    //             </body>
-    //         </html>
-    //     `);
-    
-    //     printWindow.document.close();
-    // };
-    
+
     const printLabel = (labelData: { product_code: string; product_name: any; expired_date: string; }[]) => {
         const printWindow = window.open('', '_blank');
 
@@ -452,20 +296,11 @@ const Label = () => {
                                         <td>{index + 1}</td>
                                         <td>{selectedProduct.product_name}</td>
                                         <td>
-                                            {/* <label htmlFor="totalQuantity"></label>
                                             <input
-                                                type='number'
+                                                type="quantity"
+                                                min={0}
                                                 className='form-control'
-                                                id='totalQuantity'
-                                                name='totalQuantity'
-                                                min={1}
-                                                value={totalQuantity}
-                                                onChange={(e) => setTotalQuantity(parseInt(e.target.value, 10))}
-                                            /> */}
-                                            <input
-                                                type="number"
-                                                className='form-control'
-                                                value={selectedProduct.total}
+                                                value={selectedProduct.total || '0'}
                                                 onChange={(e) => handleTotalChange(e, selectedProduct.id)}
                                             />
                                         </td>
@@ -474,7 +309,6 @@ const Label = () => {
                                                 type='date'
                                                 className='form-control'
                                                 value={selectedProduct.stock_opname?.expired_date}
-                                            // disabled
                                             />
 
                                         </td>

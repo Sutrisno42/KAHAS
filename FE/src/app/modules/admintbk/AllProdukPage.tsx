@@ -889,17 +889,6 @@ const ProductPage = () => {
 
                                                 </select>
                                             </div>
-                                            {/* <div className="mb-3">
-                                                <label className="col-form-label">Harga Jual:</label>
-                                                <input type="text" placeholder="Harga Jual" className="form-control "
-                                                    id="harga-jual"
-                                                    value={newProduct.price}
-                                                    onChange={(e) => setNewProduct({ ...newProduct, price: parseInt(e.target.value) })}
-
-                                                />
-                                            </div> */}
-
-
                                         </form>
                                     </div>
                                     <div className="modal-footer">

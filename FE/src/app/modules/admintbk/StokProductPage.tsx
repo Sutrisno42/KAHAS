@@ -1284,7 +1284,7 @@ const StokProductPage = () => {
                                         <input type="number" className="form-control" id="quantity"
                                             placeholder='0'
                                             onChange={(e) => setNewLabel({ ...newLabel, total: parseInt(e.target.value) })}
-                                        // min={1}
+                                            min={1}
                                         />
                                     </div>
                                     <div className="mb-3">

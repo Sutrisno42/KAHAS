@@ -490,6 +490,7 @@ const TransactionPage = () => {
                                                                     <input placeholder='Jumlah retur' type="number" id="quantity"
                                                                         className="col form-control me-2"
                                                                         style={{ borderColor: 'black' }}
+                                                                        min={0}
                                                                         value={transaksi.quantityreturn}
                                                                         onChange={(e) => {
                                                                             // Create a new array with the updated quantityreturn for the specific index

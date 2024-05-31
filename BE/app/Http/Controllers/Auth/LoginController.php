@@ -24,7 +24,8 @@ class LoginController extends Controller
             return response()->json($respone, 201);
         } else {
 
-            $user = User::whereUsername($request->username)->first();
+            // $user = User::whereUsername($request->username)->first();
+            $user = User::whereUsername($request->username)->with('store')->first();
 
             if (!$user || !Hash::check($request->password, $user->password)) {
 
@@ -32,7 +33,7 @@ class LoginController extends Controller
 
                 return response()->json($data, 401);
             } else {
-                if(!$user->is_active){
+                if (!$user->is_active) {
                     $data['message'] = 'Akun anda dinonaktifkan, silahkan hubungi admin !';
 
                     return response()->json($data, 401);

@@ -3,7 +3,7 @@ import usePageTitle from '../../functions/global/usePageTitle';
 import { Button, Modal } from 'react-bootstrap'
 import { KTCard } from '../../../_metronic/helpers'
 import { Link } from 'react-router-dom';
-import { fetchCategories, showProducts, showSupplier, showUnit, updateProduct } from '../../functions/global/api';
+import { fetchCategories, getrespon, showProducts, showSupplier, showUnit, updateProduct } from '../../functions/global/api';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -195,8 +195,6 @@ const StokProductPage = () => {
         } else {
         }
     };
-
-
 
     return (
         <>

@@ -5,6 +5,9 @@ import { log } from 'console'
 const API_URL = process.env.REACT_APP_API_URL
 
 /* CEK HARGA */
+export const LOGIN = `${API_URL}/auth/profile`
+
+/* CEK HARGA */
 export const SHOWCEKHARGA_URL = `${API_URL}/product?page=&search=`
 
 /* Prediksi */
@@ -807,3 +810,9 @@ export function addStore(newStore: {
 //     })
 //         .then(response => response.data);
 // }
+
+//LOGIN
+export function getrespon() {
+    return axios.get(LOGIN)
+        .then(response => response.data);
+}

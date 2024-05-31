@@ -48,6 +48,7 @@ const ShiftRecapPage = () => {
     }, []);
     const getdatarekap = async () => {
         const res = await GetRecap();
+        console.log('data', res)
         setdata(res.data)
         const dat = localStorage.getItem('drawer');
         if (dat != null) {

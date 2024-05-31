@@ -10,7 +10,9 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        $user = auth('sanctum')->user()->with('permissions')->with('permissions.menu')->first();
+        $user = auth('sanctum')->user();
+        // $user = auth('sanctum')->user()->with('permissions')->with('permissions.menu')->first();
+        $user->load(['store', 'permissions.menu']);
 
         return response()->json($user, 200);
     }

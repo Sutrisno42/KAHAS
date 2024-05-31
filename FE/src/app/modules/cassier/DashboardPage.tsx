@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, ReactNode } from 'react';
 import usePageTitle from '../../functions/global/usePageTitle';
 // import SearchProductModal from './components/SearchProductModal';
 import { convertIDR, formatCurrency } from '../../functions/global';
-import { addInputsaldo, getSearchProduk, getSearchProduk2, getsession, pushTransaksis, searchProduk, showMember, tahanTransaksihistory } from '../../functions/global/api';
+import { addInputsaldo, getSearchProduk, getSearchProduk2, getrespon, getsession, pushTransaksis, searchProduk, showMember, tahanTransaksihistory } from '../../functions/global/api';
 import Pembayaran from '../apps/components/Pembayaran';
 import TahanTransaksi from '../apps/components/TahanTransaksi';
 import { toast, ToastContainer } from 'react-toastify';
@@ -921,6 +921,22 @@ const DashboardPage = () => {
     }
   };
 
+  const [respon, setRespon] = useState<any>({});
+  const tampilData = () => {
+    getrespon()
+
+      .then(data => {
+        console.log('muncul', data);
+        setRespon(data);
+      })
+      .catch(error => {
+        console.error('Error fetching suppliers:', error);
+      });
+  };
+  useEffect(() => {
+    tampilData();
+  }, []);
+
 
   return (
     <div className='container'>
@@ -970,7 +986,8 @@ const DashboardPage = () => {
         )}
       </div>
       <div className='card-header row justify-content-between border-0 mt-4 mb-3 shadow-lg p-3 rounded bg-white'>
-        <h2>Penjualan Produk</h2>
+        {/* <h2>Penjualan Produk</h2> */}
+        <h2>{respon?.store?.store_name || 'Store not available'}</h2>
         <div className='col-12 col-md-2 mb-2 mt-4 d-flex align-items-center gap-5'>
           <div>
             <div className='d-flex align-items-center position-relative my-1 col-3'>
@@ -1086,7 +1103,7 @@ const DashboardPage = () => {
                       style={{
                         cursor: 'pointer',
                         color: index === selectedIndex ? 'white' : 'black', // Change text color here
-                        backgroundColor:index === selectedIndex?'#34759a':'',
+                        backgroundColor: index === selectedIndex ? '#34759a' : '',
                       }}
                       className="list-group-item d-flex justify-content-between align-items-center"
                       onClick={() => {
@@ -1177,9 +1194,9 @@ const DashboardPage = () => {
                             const isLastInput = currentInputIndex === inputRefs.current.length - 1;
                             const nextIndex = getNextIndex(currentInputIndex);
                             const cur = isLastInput === true ? 0 : currentInputIndex + 1;
-                            console.log('current',cur);
-                            
-                           inputdiskonRefs.current[currentInputIndex].current?.focus()
+                            console.log('current', cur);
+
+                            inputdiskonRefs.current[currentInputIndex].current?.focus()
                           } else if (e.key === 'Enter') {
                             dropdownRef.current?.focus(); // Pindah ke dropdown
                           } else if (e.shiftKey && e.key === 'Backspace') {
@@ -1269,6 +1286,7 @@ const DashboardPage = () => {
                         }
                       }}
                       onChange={(e) => handlediskon(val.id, e.target.value, 'present')}
+                      min={0}
 
                     />
                     <span className="percent-text">%</span>
@@ -1290,8 +1308,8 @@ const DashboardPage = () => {
                           const isLastInput = currentInputIndex === inputdiskonRefs2.current.length - 1;
                           const nextIndex = getNextIndex(currentInputIndex);
                           const cur = isLastInput === true ? 0 : currentInputIndex + 1;
-                          console.log('daataalast',isLastInput);
-                          
+                          console.log('daataalast', isLastInput);
+
                           if (selectedProduct.length > 0) {
                             console.log('cek');
                             // Jika lebih dari satu input dan ini input terakhir
@@ -1307,7 +1325,7 @@ const DashboardPage = () => {
                             // Jika selectedProduct.length sama dengan 0
                             dropdownRef.current?.focus(); // Pindah ke dropdown
                           }
-                          
+
                         } else if (e.key === 'Enter') {
                           dropdownRef.current?.focus(); // Pindah ke dropdown
                         } else if (e.shiftKey && e.key === 'Backspace') {

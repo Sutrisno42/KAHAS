@@ -330,76 +330,7 @@ const PelangganPage = () => {
                             </div>
                         </div>
                     </div>
-                    {/* end::Table container */}
-
-
-                    {/* Alert Tambah Pelanggan */}
-                    {/* <div className="modal fade" id="ModalLabel" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1 className="modal-title fs-5" id="exampleModalLabel" >Tambah Pelanggan</h1>
-                                    <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div className="modal-body">
-                                    <form>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Nama Pelanggan:</label>
-                                            <input type="text" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.name}
-                                                onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Kode Pelanggan:</label>
-                                            <input type="text" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.code}
-                                                onChange={(e) => setNewMember({ ...newMember, code: e.target.value })}
-                                            />
-
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Telepon:</label>
-                                            <input type="text" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.phone}
-                                                onChange={(e) => setNewMember({ ...newMember, phone: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Email:</label>
-                                            <input type="email" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.email}
-                                                onChange={(e) => setNewMember({ ...newMember, email: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Alamat:</label>
-                                            <input type="text" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.address}
-                                                onChange={(e) => setNewMember({ ...newMember, address: e.target.value })}
-                                            />
-                                        </div>
-                                        <div className="mb-3">
-                                            <label className="col-form-label">Diskon:</label>
-                                            <input type="number" placeholder="" className="form-control" id="product-name"
-                                                value={newMember.default_discount}
-                                                onChange={(e) => setNewMember({ ...newMember, default_discount: parseInt(e.target.value) })}
-                                            />
-                                        </div>
-
-                                    </form>
-                                </div>
-                                <div className="modal-footer">
-                                    <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    <button type="button" className="btn btn-primary" data-bs-dismiss="modal"
-                                        onClick={addMember}
-                                    >Simpan</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div> */}
                 </div>
-
 
                 {/* modal */}
                 {showMemberConfirmation && memberToMember !== null && (
@@ -504,7 +435,7 @@ const PelangganPage = () => {
                                 </div>
                                 <div className="mb-3">
                                     <label className="col-form-label">Diskon:</label>
-                                    <input type="number" className="form-control" id="quantity"
+                                    <input type="number" className="form-control" id="quantity" min={0}
                                         value={newMember.default_discount}
                                         onChange={(e) => setNewMember({ ...newMember, default_discount: parseInt(e.target.value) })}
                                     />
@@ -556,8 +487,6 @@ const PelangganPage = () => {
                     </div>
                 )}
                 <ToastContainer position="top-right" autoClose={2000} />
-
-
             </KTCard>
         </>
     )
