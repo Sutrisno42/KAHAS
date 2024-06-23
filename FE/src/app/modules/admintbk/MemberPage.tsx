@@ -395,7 +395,7 @@ const MemberPage = () => {
                                                 className={`btn btn-sm ${kasir.is_active ? 'btn-danger' : 'btn-success'}`}
                                                 onClick={() => toggleAktifStatus(kasir.id, kasir.is_active)}
                                             >
-                                                {kasir.is_active ? 'Non-Aktif' : 'Aktif'}
+                                                {kasir.is_active ? 'Non-Aktifkan' : 'Aktifkan'}
                                             </button>
                                         </td>
                                     </tr>

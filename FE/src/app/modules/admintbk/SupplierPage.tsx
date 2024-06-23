@@ -384,7 +384,7 @@ const SupplierPage = () => {
                                                 handleToggleForm();
                                             }}
                                         >
-                                            Tambah User
+                                            Tambah Suplier
                                         </button>
                                     )}
 

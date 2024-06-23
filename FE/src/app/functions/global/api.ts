@@ -12,6 +12,8 @@ export const SHOWCEKHARGA_URL = `${API_URL}/product?page=&search=`
 
 /* Prediksi */
 export const PENCARIAN_DATA = `${API_URL}/prediksi`
+export const update_predik = `${API_URL}/prediksi/:id`
+export const delete_predik = `${API_URL}/prediksi/{id}`
 
 /* SUPPLIER */
 export const SHOWSUPPLIER_URL = `${API_URL}/supplier?search`
@@ -768,6 +770,7 @@ export function deleteProductOut(product_out_id: number) {
     });
 }
 
+/* PREDIKSI */
 export function getSearchData(nama_produk: string) {
     return axios.get(`${PENCARIAN_DATA}?search=${nama_produk}`)
         .then(response => response.data.data);
@@ -776,6 +779,35 @@ export function getSearchData(nama_produk: string) {
 export function getSearchData2() {
     return axios.get(PENCARIAN_DATA)
         .then(response => response.data.data);
+}
+
+export function addPredik(newPredik: {
+    nama_produk: string;
+    data1: number;
+    data2: number;
+    data3: number;
+    data4: number;
+    data5: number;
+}) {
+    return axios.post(PENCARIAN_DATA, newPredik)
+        .then(response => response.data);
+}
+
+export function updatedPredik(id: number, nama_produk: string, data1: number, data2: number, data3: number, data4: number, data5: number) {
+    const url = update_predik.replace(':id', id.toString());
+    return axios.post(url, {
+        nama_produk,
+        data1,
+        data2,
+        data3,
+        data4,
+        data5,
+    }).then(response => response.data);
+}
+
+export function deletePredik(id: number) {
+    return axios.delete(`${API_URL}/prediksi/${id}}`, {
+    });
 }
 
 /* STORE */

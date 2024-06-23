@@ -121,5 +121,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('store', StoreController::class)->only(['index', 'store', 'show', 'destroy']);
     Route::post('store/{id}', [App\Http\Controllers\StoreController::class, 'update']);
 
-    Route::apiResource('prediksi', PrediksiPenjualanController::class)->only(['index', 'store', 'show']);
+    Route::apiResource('prediksi', PrediksiPenjualanController::class)->only(['index', 'store', 'show', 'destroy']);
+    Route::post('prediksi/{id}', [App\Http\Controllers\PrediksiPenjualanController::class, 'update']);
 });

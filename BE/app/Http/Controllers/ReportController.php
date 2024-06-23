@@ -18,8 +18,8 @@ class ReportController extends Controller
     {
         $type = request()->type ?? 'daily';
 
-        if(request()->has('search') && !empty(request()->search)){
-            $product = Product::where('product_name', 'like', '%'.request()->search.'%')->get();
+        if (request()->has('search') && !empty(request()->search)) {
+            $product = Product::where('product_name', 'like', '%' . request()->search . '%')->get();
             $product_id = $product->pluck('id')->toArray();
         } else {
             $product = Product::all();
@@ -33,11 +33,11 @@ class ReportController extends Controller
         $last_year = date('Y');
 
         $summary_year = [];
-        for($i = $first_year; $i <= $last_year; $i++){
-            $total_summary_year = TransactionDetail::whereIn('transaction_id',$list_transaction_details)
-                                    ->whereHas('transaction', function ($query) use ($i) {
-                                        $query->whereYear('date', $i);
-                                    })->sum('sub_total');
+        for ($i = $first_year; $i <= $last_year; $i++) {
+            $total_summary_year = TransactionDetail::whereIn('transaction_id', $list_transaction_details)
+                ->whereHas('transaction', function ($query) use ($i) {
+                    $query->whereYear('date', $i);
+                })->sum('sub_total');
             $summary_year[] = [
                 'year' => $i,
                 'total' => $total_summary_year,
@@ -46,14 +46,14 @@ class ReportController extends Controller
 
         $summary_sales = [];
 
-        if($type == 'daily'){
-            if(request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)){
+        if ($type == 'daily') {
+            if (request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)) {
                 $validator = Validator::make(request()->all(), [
                     'start_date' => 'required|date_format:d-m-Y',
                     'end_date' => 'required|date_format:d-m-Y',
                 ]);
 
-                if($validator->fails()){
+                if ($validator->fails()) {
                     return response()->json([
                         'status' => 'error',
                         'message' => $validator->errors()->first(),
@@ -69,23 +69,23 @@ class ReportController extends Controller
             }
 
             $priode = CarbonPeriod::create($first_date, $last_date);
-            foreach($priode as $date) {
+            foreach ($priode as $date) {
                 $summary_sales[] = [
                     'date' => $date->format('Y-m-d'),
                     'total' => TransactionDetail::whereIn('transaction_id', $list_transaction_details)
-                                ->whereHas('transaction', function ($query) use ($date) {
-                                    $query->whereDate('date', $date->format('Y-m-d'));
-                                })->sum('sub_total'),
+                        ->whereHas('transaction', function ($query) use ($date) {
+                            $query->whereDate('date', $date->format('Y-m-d'));
+                        })->sum('sub_total'),
                 ];
             }
-        } else if($type == 'monthly'){
-            if(request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)){
+        } else if ($type == 'monthly') {
+            if (request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)) {
                 $validator = Validator::make(request()->all(), [
                     'start_date' => 'required|date_format:m-Y',
                     'end_date' => 'required|date_format:m-Y',
                 ]);
 
-                if($validator->fails()){
+                if ($validator->fails()) {
                     return response()->json([
                         'status' => 'error',
                         'message' => $validator->errors()->first(),
@@ -101,13 +101,13 @@ class ReportController extends Controller
             }
 
             $priode = CarbonPeriod::create($first_date, $last_date);
-            foreach($priode as $date) {
+            foreach ($priode as $date) {
                 $summary_sales[] = [
                     'date' => $date->format('Y-m'),
                     'total' => TransactionDetail::whereIn('transaction_id', $list_transaction_details)
-                                ->whereHas('transaction', function ($query) use ($date) {
-                                    $query->whereMonth('date', $date->format('m'))->whereYear('date', $date->format('Y'));
-                                })->sum('sub_total'),
+                        ->whereHas('transaction', function ($query) use ($date) {
+                            $query->whereMonth('date', $date->format('m'))->whereYear('date', $date->format('Y'));
+                        })->sum('sub_total'),
                 ];
             }
             $summary_sales = array_map("unserialize", array_unique(array_map("serialize", $summary_sales)));
@@ -126,7 +126,7 @@ class ReportController extends Controller
 
         $per_product = TransactionDetail::whereIn('product_id', $product_id)->whereIn('transaction_id', $transaction_id)->groupBy('product_id')->pluck('product_id')->toArray();
 
-        foreach($per_product as $key => $id){
+        foreach ($per_product as $key => $id) {
             $detail = TransactionDetail::where('product_id', $id)->whereIn('transaction_id', $transaction_id);
             $product = StockOpname::where('product_id', $id)->join('products', 'products.id', '=', 'stock_opnames.product_id')->first();
             $total_hpp += $product->hpp_price * $detail->sum('quantity');
@@ -180,8 +180,8 @@ class ReportController extends Controller
     {
         $type = request()->type ?? 'daily';
 
-        if(request()->has('search') && !empty(request()->search)){
-            $product = Product::where('product_name', 'like', '%'.request()->search.'%')->get();
+        if (request()->has('search') && !empty(request()->search)) {
+            $product = Product::where('product_name', 'like', '%' . request()->search . '%')->get();
             $product_id = $product->pluck('id')->toArray();
         } else {
             $product = Product::all();
@@ -195,8 +195,8 @@ class ReportController extends Controller
         $last_year = date('Y');
 
         $summary_year = [];
-        for($i = $first_year; $i <= $last_year; $i++){
-            $total_summary_year = Transaction::whereIn('id',$list_transaction_details)->whereYear('date', $i)->sum('grand_total');
+        for ($i = $first_year; $i <= $last_year; $i++) {
+            $total_summary_year = Transaction::whereIn('id', $list_transaction_details)->whereYear('date', $i)->sum('grand_total');
             $summary_year[] = [
                 'year' => strval($i),
                 'total' => $total_summary_year,
@@ -205,14 +205,14 @@ class ReportController extends Controller
 
         $summary_sales = [];
 
-        if($type == 'daily'){
-            if(request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)){
+        if ($type == 'daily') {
+            if (request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)) {
                 $validator = Validator::make(request()->all(), [
                     'start_date' => 'required|date_format:d-m-Y',
                     'end_date' => 'required|date_format:d-m-Y',
                 ]);
 
-                if($validator->fails()){
+                if ($validator->fails()) {
                     return response()->json([
                         'status' => 'error',
                         'message' => $validator->errors()->first(),
@@ -228,20 +228,20 @@ class ReportController extends Controller
             }
 
             $priode = CarbonPeriod::create($first_date, $last_date);
-            foreach($priode as $date) {
+            foreach ($priode as $date) {
                 $summary_sales[] = [
                     'date' => $date->format('Y-m-d'),
                     'total' => Transaction::whereIn('id', $list_transaction_details)->whereDate('date', $date->format('Y-m-d'))->sum('grand_total'),
                 ];
             }
-        } else if($type == 'monthly'){
-            if(request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)){
+        } else if ($type == 'monthly') {
+            if (request()->has('start_date') && request()->has('end_date') && !empty(request()->start_date) && !empty(request()->end_date)) {
                 $validator = Validator::make(request()->all(), [
                     'start_date' => 'required|date_format:m-Y',
                     'end_date' => 'required|date_format:m-Y',
                 ]);
 
-                if($validator->fails()){
+                if ($validator->fails()) {
                     return response()->json([
                         'status' => 'error',
                         'message' => $validator->errors()->first(),
@@ -257,7 +257,7 @@ class ReportController extends Controller
             }
 
             $priode = CarbonPeriod::create($first_date, $last_date);
-            foreach($priode as $date) {
+            foreach ($priode as $date) {
                 $summary_sales[] = [
                     'date' => $date->format('Y-m'),
                     'total' => Transaction::whereIn('id', $list_transaction_details)->whereMonth('date', $date->format('m'))->whereYear('date', $date->format('Y'))->sum('grand_total'),
@@ -271,16 +271,26 @@ class ReportController extends Controller
                 'message' => 'Tipe laporan tidak sesuai',
             ], 400);
         }
+        $transactions = Transaction::with('cashier.store')->whereIn('id', $list_transaction_details);
 
-        $transactions = Transaction::whereIn('id', $list_transaction_details)->whereDate('date', '>=', $first_date)->whereDate('date', '<=', $last_date)->get();
+        if (request()->has('store_id') && !empty(request()->store_id)) {
+            $transactions = $transactions->whereHas('cashier', function ($query) {
+                $query->where('store_id', 'like', '%' . request()->store_id . '%');
+            });
+        }
+
+        $transactions = $transactions->whereDate('date', '>=', $first_date)->whereDate('date', '<=', $last_date)->get();
+
+        // $transactions = Transaction::whereIn('id', $list_transaction_details)->whereDate('date', '>=', $first_date)->whereDate('date', '<=', $last_date)->get();
+        // $transactions = Transaction::with('cashier.store')->whereIn('id', $list_transaction_details)->whereDate('date', '>=', $first_date)->whereDate('date', '<=', $last_date)->get();
         $total_hpp = 0;
         $summary_transaction = [];
 
-        foreach ($transactions as $transaction){
+        foreach ($transactions as $transaction) {
             $transaction_detail = TransactionDetail::where('transaction_id', $transaction->id)->get();
 
             $hpp_per_transaction = 0;
-            foreach ($transaction_detail as $detail){
+            foreach ($transaction_detail as $detail) {
                 $product = StockOpname::where('product_id', $detail->product_id)->join('products', 'products.id', '=', 'stock_opnames.product_id')->first();
                 $total_hpp += $product->hpp_price * $detail->quantity;
                 $hpp_per_transaction += $product->hpp_price * $detail->quantity;
@@ -295,6 +305,12 @@ class ReportController extends Controller
                 'discount' => $transaction->discount,
                 'omset' => $transaction->grand_total,
                 'profit' => $transaction->grand_total - $hpp_per_transaction,
+                // 'store' => $transaction->cashier->store->store_name,
+                'cashier' => $transaction->cashier,
+                // 'product_name' => $product->product_name,
+                // 'quantity' => $detail->quantity,
+                // 'date' => $transaction->date->format('Y-m-d'),
+                'details' => $transaction->details,
             ];
 
             $summary_transaction[] = $data;
@@ -337,7 +353,7 @@ class ReportController extends Controller
     {
         $product = Product::withTrashed()->find($id);
 
-        if(!$product){
+        if (!$product) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Data produk tidak ditemukan',
@@ -366,7 +382,7 @@ class ReportController extends Controller
     {
         $transaction = Transaction::find($id);
 
-        if(!$transaction){
+        if (!$transaction) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Data transaksi tidak ditemukan',
@@ -376,7 +392,7 @@ class ReportController extends Controller
         $transaction_details = TransactionDetail::where('transaction_id', $id)->get();
 
         $total_hpp = 0;
-        foreach ($transaction_details as $detail){
+        foreach ($transaction_details as $detail) {
             $product = StockOpname::where('product_id', $detail->product_id)->join('products', 'products.id', '=', 'stock_opnames.product_id')->first();
             $total_hpp += $product->hpp_price * $detail->quantity;
         }

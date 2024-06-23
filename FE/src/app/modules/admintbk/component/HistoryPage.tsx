@@ -8,7 +8,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import axios from 'axios';
 import { convertDate, convertIDR, getDaysRemaining } from '../../../functions/global';
-import { number } from 'yup';
+import * as XLSX from 'xlsx';
 
 interface Supplier {
     id: number;
@@ -44,8 +44,8 @@ const HistoryPage = () => {
         note: '',
         amount: 0,
         responsible: '',
-        expired_notif_date:'',
-        expired_date:'',
+        expired_notif_date: '',
+        expired_date: '',
         expired_notif_days: 0,
 
     });
@@ -61,11 +61,11 @@ const HistoryPage = () => {
         showHistoriPerRepack(productId)
             .then(data => {
                 setRepack(data);
-                console.log('datarepak',data);
-                
+                console.log('datarepak', data);
+
             })
     }
-    
+
     useEffect(() => {
         if (!product_id) {
             return;
@@ -84,7 +84,7 @@ const HistoryPage = () => {
             } catch (error) {
             }
         };
-       
+
         fetchData();
         showSupplier().then((data) => {
             setSupplier(data);
@@ -105,9 +105,9 @@ const HistoryPage = () => {
                     note: selectedOpname.note,
                     amount: selectedOpname.amount,
                     responsible: selectedOpname.responsible,
-                    expired_notif_date:selectedOpname.expired_notif_date,
-                    expired_date:selectedOpname.expired_date,
-                    expired_notif_days:selectedOpname.expired_notif_days,
+                    expired_notif_date: selectedOpname.expired_notif_date,
+                    expired_date: selectedOpname.expired_date,
+                    expired_notif_days: selectedOpname.expired_notif_days,
 
                 });
             }
@@ -133,8 +133,8 @@ const HistoryPage = () => {
                 newStokOpname.expired_date,
             )
                 .then((response) => {
-                    console.log('data',newStokOpname);
-                    
+                    console.log('data', newStokOpname);
+
                     console.log('Akun diperbarui:', response);
                     if (product_id) {
                         showHistory(parseInt(product_id, 10))
@@ -240,6 +240,39 @@ const HistoryPage = () => {
             currency: 'IDR',
             minimumFractionDigits: 0,
         }).format(amount);
+    };
+
+    const exportToExcel = () => {
+        if (!productHistory || !productHistory.transactions) {
+            return;
+        }
+
+        // Step 1: Group transactions by month
+        const groupedTransactions: { [month: string]: number } = {};
+        productHistory.transactions.forEach((transaction: any) => {
+            const transactionDate = new Date(transaction.transaction?.date);
+            const month = transactionDate.toLocaleString('en-US', { month: 'long' });
+            const amount = parseInt(transaction.quantity_unit, 10); // Assuming quantity_unit is numeric
+            if (groupedTransactions[month]) {
+                groupedTransactions[month] += amount;
+            } else {
+                groupedTransactions[month] = amount;
+            }
+        });
+
+        // Step 2: Prepare data for Excel export
+        const data = Object.keys(groupedTransactions).map(month => ({
+            Bulan: month,
+            'Jumlah Total': groupedTransactions[month],
+        }));
+
+        // Step 3: Export to Excel
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'History Terjual by Month');
+
+        // Export the Excel file
+        XLSX.writeFile(workbook, 'history_terjual_by_month.xlsx');
     };
 
     return (
@@ -399,8 +432,8 @@ const HistoryPage = () => {
                                         <input
                                             type="text"
                                             className="form-control"
-                                        value={formatCurrency(newStokOpname.amount)}
-                                        onChange={(e) => setNewStokOpname({ ...newStokOpname, amount: parseInt(e.target.value.replace(/\D/g, ''), 10) || 0 })}
+                                            value={formatCurrency(newStokOpname.amount)}
+                                            onChange={(e) => setNewStokOpname({ ...newStokOpname, amount: parseInt(e.target.value.replace(/\D/g, ''), 10) || 0 })}
                                         />
                                     </div>
                                     <div className="mb-3">
@@ -434,36 +467,36 @@ const HistoryPage = () => {
                                         <input
                                             type="text"
                                             className="form-control"
-                                        value={newStokOpname.responsible}
-                                        onChange={(e) => setNewStokOpname({ ...newStokOpname, responsible: e.target.value })}
+                                            value={newStokOpname.responsible}
+                                            onChange={(e) => setNewStokOpname({ ...newStokOpname, responsible: e.target.value })}
 
                                         />
                                     </div>
-                                      <div className="mb-3">
-                                    <label className="col-form-label">Tanggal Kadaluarsa:</label>
-                                    <input type="date" className="form-control" id="product-name"
-                                        value={newStokOpname.expired_date}
-                                        onChange={(e) => setNewStokOpname({ ...newStokOpname, expired_date: e.target.value })}
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="col-form-label">Notif Tanggal Kadaluarsa:</label>
-                                    <select
-                                        className="form-select"
-                                        value={getDaysRemaining(newStokOpname.expired_notif_date)}
-                                        onChange={(e) => {
-                                            const selectedDays = parseInt(e.target.value);
-                                            const currentDate = new Date();
-                                            const newExpiredNotifDate = new Date(currentDate.setDate(currentDate.getDate() + selectedDays)).toISOString().split('T')[0];
-                                            setNewStokOpname({ ...newStokOpname, expired_notif_days: selectedDays, expired_notif_date: newExpiredNotifDate });
-                                        }}
-                                    >
-                                        {Array.from({ length: 180 }, (_, index) => (
-                                            <option key={index + 1} value={index + 1}>{index + 1} hari</option>
-                                        ))}
+                                    <div className="mb-3">
+                                        <label className="col-form-label">Tanggal Kadaluarsa:</label>
+                                        <input type="date" className="form-control" id="product-name"
+                                            value={newStokOpname.expired_date}
+                                            onChange={(e) => setNewStokOpname({ ...newStokOpname, expired_date: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="mb-3">
+                                        <label className="col-form-label">Notif Tanggal Kadaluarsa:</label>
+                                        <select
+                                            className="form-select"
+                                            value={getDaysRemaining(newStokOpname.expired_notif_date)}
+                                            onChange={(e) => {
+                                                const selectedDays = parseInt(e.target.value);
+                                                const currentDate = new Date();
+                                                const newExpiredNotifDate = new Date(currentDate.setDate(currentDate.getDate() + selectedDays)).toISOString().split('T')[0];
+                                                setNewStokOpname({ ...newStokOpname, expired_notif_days: selectedDays, expired_notif_date: newExpiredNotifDate });
+                                            }}
+                                        >
+                                            {Array.from({ length: 180 }, (_, index) => (
+                                                <option key={index + 1} value={index + 1}>{index + 1} hari</option>
+                                            ))}
 
-                                    </select>
-                                </div>
+                                        </select>
+                                    </div>
                                 </form>
                                 {validationError && (
                                     <div className="alert alert-danger" role="alert">
@@ -637,6 +670,11 @@ const HistoryPage = () => {
                             <div className='row gap-4 fw-bold'>
                                 <div className=''>
                                     <h1 className='mt-10'>History Terjual</h1>
+                                </div>
+                                <div>
+                                    <button className="btn btn-primary" onClick={exportToExcel}>
+                                        Export
+                                    </button>
                                 </div>
                             </div>
                         </div>

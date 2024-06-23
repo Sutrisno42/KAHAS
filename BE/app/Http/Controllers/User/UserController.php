@@ -13,16 +13,29 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index()
     {
-        //get all users with search
-        if ($request->search) {
-            $user = User::where('name', 'like', '%' . $request->search . '%')->paginate(10);
-        } else {
-            $user = User::paginate(10);
+        $user = User::query();
+        $limit = request()->limit ?? 10;
+
+        if (request()->has('name') && request('name') != '') {
+            $user = $user->where('name', 'like', '%' . request('name') . '%');
         }
 
-        //return users
+        if (request()->has('username') && request('username') != '') {
+            $user = $user->where('username', 'like', '%' . request('username') . '%');
+        }
+
+        if (request()->has('role') && request('role') != '') {
+            $user = $user->where('role', 'like', '%' . request('role') . '%');
+        }
+
+        if (request()->has('arrange_by') && request('arrange_by') != '') {
+            $user = $user->orderBy(request('arrange_by'), request('sort_by') ?? 'asc');
+        }
+
+        $user = $user->paginate($limit);
+
         return response()->json([
             'status' => 'success',
             'message' => 'User retrieved successfully',
@@ -68,7 +81,6 @@ class UserController extends Controller
             'message' => 'User retrieved successfully',
             'data' => $user,
         ], 200);
-
     }
 
     /**
@@ -104,7 +116,7 @@ class UserController extends Controller
             ], 404);
         }
 
-        if($request->has('password')){
+        if ($request->has('password')) {
             $user->password = bcrypt($request->password);
         }
 
@@ -147,7 +159,6 @@ class UserController extends Controller
             'status' => 'success',
             'message' => 'User deleted successfully',
         ], 200);
-
     }
 
     public function changeStatus(Request $request, $id)

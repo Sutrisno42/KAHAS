@@ -31,6 +31,7 @@ import DetailLapPenjualan from '../modules/admintbk/component/DetailLapPenjualan
 import Label from '../modules/admintbk/component/Label'
 import HRekapshift from '../modules/admintbk/HRekapShift'
 import Prediksi from '../modules/admintbk/Prediksi'
+import KelPenjualan from '../modules/admintbk/KelPenjualan'
 
 const Adminroute = () => {
   const ProfilePage = lazy(() => import('../modules/profile/ProfilePage'))
@@ -74,6 +75,7 @@ const Adminroute = () => {
         <Route path='laporankeuangaan/detailLaporan/:product_id' element={<DetailLaporan />} />
         <Route path='laporanpenjualan/detailLapPenjualan/:transaction_id' element={<DetailLapPenjualan />} />
         <Route path='prediksi' element={<Prediksi />} />
+        <Route path='kelpenjualan' element={<KelPenjualan />} />
 
         <Route path='logout' element={<Logout />} /> {/* Added this line */}
 

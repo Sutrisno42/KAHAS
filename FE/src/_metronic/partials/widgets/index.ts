@@ -49,6 +49,7 @@ export * from './charts/ChartsWidget5'
 // export * from './charts/ChartsWidget6'
 export * from './charts/ChartsWidget7'
 export * from './charts/ChartsWidget8'
+export * from './charts/ChartsWidget9'
 
 // tables
 export * from './tables/TablesWidget1'

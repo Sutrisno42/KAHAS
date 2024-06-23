@@ -838,13 +838,6 @@ const StokProductPage = () => {
                                                     <button className="btn btn-info btn-sm"
                                                         onClick={() => openEditProductOut(item)}
                                                     >Retur Produk</button>
-                                                    {/* <br /> */}
-                                                    {/* <span>  </span>
-
-                                                    <button className="btn btn-info btn-sm"
-                                                        onClick={() => handleApproveStock(item.stock_opname?.id)}
-                                                    // onClick={approveStock}
-                                                    >Setujui Stok Baru</button> */}
                                                     <span> </span>
                                                     <Link to={`/StokProduk/history/${item.id}`}>
                                                         <button className="btn btn-danger btn-sm" onClick={() => handleHistoryButtonClick(item.id)}>
@@ -853,14 +846,12 @@ const StokProductPage = () => {
                                                     </Link>
                                                     <span>  </span>
                                                     <button className="btn btn-danger btn-sm"
-                                                        // onClick={() => handleRepackButtonClick(item)}
                                                         onClick={() => openEditRepact(item)}
                                                     >Repack</button>
-                                                    <span>  </span>
+                                                    {/* <span>  </span>
                                                     <button className="btn btn-danger btn-sm"
-                                                        // onClick={() => handleLabelButtonClick(item.id)}
                                                         onClick={() => openEditLabel(item)}
-                                                    >Label</button>
+                                                    >Label</button> */}
                                                 </td>
                                             </tr>
                                         ))
@@ -1303,7 +1294,7 @@ const StokProductPage = () => {
                                     Batal
                                 </Button>
                                 <Button variant="primary" onClick={addLabel}>
-                                    Simpan
+                                    Cetak
                                 </Button>
                             </Modal.Footer>
                         </Modal>

@@ -3,7 +3,7 @@ import usePageTitle from '../../functions/global/usePageTitle';
 import { BiSortAlt2 } from 'react-icons/bi'
 import { ChartsWidget3, ChartsWidget4, ChartsWidget5 } from '../../../_metronic/partials/widgets';
 import { Button } from 'react-bootstrap';
-import { showKeuangan, showLapPenjualan } from '../../functions/global/api';
+import { fetchStore, showKeuangan, showLapPenjualan } from '../../functions/global/api';
 import { useNavigate } from 'react-router-dom';
 import { convertIDR, formatDate, formatDateSearch } from '../../functions/global';
 import * as XLSX from 'xlsx';
@@ -23,8 +23,14 @@ type ProductSummary = {
     profit_before_discount: number;
     discount: number;
     omset: number;
+    cashier: any;
     profit: number;
+    details: [any];
 };
+interface Store {
+    id: number;
+    store_name: string;
+}
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -39,9 +45,9 @@ function LapPenjualanPage() {
     const [newMember, setNewMember] = useState({
         start_date: '',
         end_date: '',
-
+        store_id: '',
     });
-
+    const [store, setStore] = useState<Store[]>([]);
     const navigate = useNavigate();
     const handleReturnButtonClick = (transaction_id: number) => {
         navigate(`/laporanpenjualan/detailLapPenjualan/${transaction_id}`);
@@ -60,6 +66,9 @@ function LapPenjualanPage() {
     };
 
     useEffect(() => {
+        fetchStore().then((dataToko) => {
+            setStore(dataToko);
+        });
         showData();
     }, []);
 
@@ -77,6 +86,7 @@ function LapPenjualanPage() {
                 type: type,
                 start_date: newMember.start_date,
                 end_date: newMember.end_date,
+                store_id: newMember.store_id,
             };
             console.log("Sending request with params:", searchParams);
             axios.get(`${API_URL}/report/sales`, {
@@ -85,7 +95,6 @@ function LapPenjualanPage() {
                 .then(response => {
                     console.log('Response data:', response.data.data);
                     setKeuangan(response.data.data);
-                    // setProductSummary(keuangan?.summary_product?.data || []);
                     setCurrentPage(pageNumber);
                     setTotalPages(response.data.data.total_pages);
                 })
@@ -97,9 +106,35 @@ function LapPenjualanPage() {
         }
     };
 
+
     const handleExport = () => {
+        // Check if productSummary is not empty
+        if (productSummary.length === 0) {
+            alert('Tidak ada data untuk diekspor');
+            return;
+        }
+        // Prepare the data to be exported
+        const exportData: any[] = [];
+
+        productSummary.forEach((product) => {
+            product.details.forEach((detail, index) => {
+                exportData.push({
+                    'Nomor Nota': index === 0 ? product.nota_number : '',
+                    'Nama Toko': index === 0 ? product.cashier?.store?.store_name || '' : '',
+                    'HPP': index === 0 ? convertIDR(product.hpp) : '',
+                    'Omset Sebelum Diskon': index === 0 ? convertIDR(product.omset_before_discount) : '',
+                    'Profit Sebelum Diskon': index === 0 ? convertIDR(product.profit_before_discount) : '',
+                    'Diskon': index === 0 ? convertIDR(product.discount) : '',
+                    'Omset': index === 0 ? convertIDR(product.omset) : '',
+                    'Profit': index === 0 ? convertIDR(product.profit) : '',
+                    'Nama Produk': detail.product_name,
+                    'Quantitas': detail.quantity,
+                });
+            });
+        });
+
         const wb = XLSX.utils.book_new();
-        const ws = XLSX.utils.json_to_sheet(productSummary);
+        const ws = XLSX.utils.json_to_sheet(exportData);
         XLSX.utils.book_append_sheet(wb, ws, 'ProductSummary');
         XLSX.writeFile(wb, 'product_summary.xlsx');
     };
@@ -132,6 +167,22 @@ function LapPenjualanPage() {
                                     name='toDate'
                                     onChange={(e) => setNewMember({ ...newMember, end_date: formatDateSearch(e.target.value, type) })}
                                 />
+                            </div>
+                            <div className='col-3'>
+                                <label className='mb-2'>Toko</label>
+                                <select
+                                    className="form-select"
+                                    name="modeProcess"
+                                    // value={newTransaksi.store_id}
+                                    onChange={(e) => setNewMember({ ...newMember, store_id: e.target.value })}
+                                >
+                                    <option value="">Pilih Toko</option>
+                                    {store.map((store) => (
+                                        <option key={store.id} value={store.id}>
+                                            {store.store_name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className='col-3'>
                                 <label className='mb-2'>Urutkan Berdasarkan</label>
@@ -180,6 +231,7 @@ function LapPenjualanPage() {
                                             No
                                         </th>
                                         <th className='min-w-150px'>No Nota</th>
+                                        <th className='min-w-150px'>Toko</th>
                                         <th className='min-w-140px'>HPP</th>
                                         <th className='min-w-120px'>Omset Sebelum Diskon</th>
                                         <th className='min-w-120px'>Profit Sebelum Diskon</th>
@@ -204,6 +256,13 @@ function LapPenjualanPage() {
                                                     </strong>
 
                                                 </button>
+                                            </td>
+                                            <td>
+                                                <strong
+                                                    className='text-dark fw-bold d-block mb-1 fs-6'
+                                                >
+                                                    {product.cashier?.store?.store_name}
+                                                </strong>
                                             </td>
                                             <td>
                                                 <strong

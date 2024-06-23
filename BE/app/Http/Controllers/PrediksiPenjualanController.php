@@ -105,4 +105,59 @@ class PrediksiPenjualanController extends Controller
             'data' => $prediksiPenjual,
         ], 200);
     }
+
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'nama_produk' => 'required|string',
+            'data1' => 'required|integer',
+            'data2' => 'required|integer',
+            'data3' => 'required|integer',
+            'data4' => 'required|integer',
+            'data5' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors(),
+            ], 400);
+        }
+
+        $prediksiPenjualan = PrediksiPenjualan::find($id);
+
+        if (!$prediksiPenjualan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'prediksi not found',
+            ], 404);
+        }
+
+        $prediksiPenjualan->update($request->all());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'prediksi updated successfully',
+            'data' => $prediksiPenjualan,
+        ], 200);
+    }
+
+    public function destroy($id)
+    {
+        $prediksiPenjualan = PrediksiPenjualan::find($id);
+
+        if (!$prediksiPenjualan) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'prediksi not found',
+            ], 404);
+        }
+
+        $prediksiPenjualan->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'prediksi deleted successfully',
+        ], 200);
+    }
 }

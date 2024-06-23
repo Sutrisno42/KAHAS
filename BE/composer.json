@@ -10,6 +10,7 @@
         "laravel/framework": "^10.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "maatwebsite/excel": "*",
         "staudenmeir/eloquent-json-relations": "^1.1"
     },
     "require-dev": {

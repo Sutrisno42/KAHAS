@@ -75,6 +75,12 @@ const SDBadmin = () => {
           title='Laporan Penjualan'
           fontIcon='bi-app-indicator'
         />
+        <SidebarMenuItem
+          to='/kelpenjualan'
+          icon='/media/icons/duotune/abstract/abs009.svg'
+          title='Kelola Penjualan Produk'
+          fontIcon='bi-app-indicator'
+        />
         {/* <SidebarMenuItem
           to='/laporanharian'
           icon='/media/icons/duotune/abstract/abs009.svg'
@@ -103,7 +109,7 @@ const SDBadmin = () => {
       <SidebarMenuItem
         to='/daftarPelanggan'
         icon='/media/icons/duotune/communication/com005.svg'
-        title='Daftar Pelanggan'
+        title='Data Pelanggan'
         fontIcon='bi-app-indicator'
       />
       <SidebarMenuItem

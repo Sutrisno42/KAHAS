@@ -83,10 +83,10 @@ class ProductController extends Controller
         //create product
         $date = new \DateTime();
 
-        if($request->has('category_id') && $request->category_id != '') {
+        if ($request->has('category_id') && $request->category_id != '') {
             $category_id = $request->category_id;
         } else {
-            if($request->has('category_name') && $request->category_name != '' && $request->has('category_code') && $request->category_code != '') {
+            if ($request->has('category_name') && $request->category_name != '' && $request->has('category_code') && $request->category_code != '') {
                 $category = Category::create([
                     'category_name' => $request->category_name,
                     'code' => $request->category_code,
@@ -175,7 +175,6 @@ class ProductController extends Controller
             'message' => 'Product retrieved successfully',
             'data' => $product,
         ], 200);
-
     }
 
     /**
@@ -185,8 +184,8 @@ class ProductController extends Controller
     {
         //update product
         $product = Product::find($id);
-        $stockOpname = StockOpname::where('product_id',$id)->first();
-        $productUnit = ProductUnit::where('product_id',$id)->delete();
+        $stockOpname = StockOpname::where('product_id', $id)->first();
+        $productUnit = ProductUnit::where('product_id', $id)->delete();
 
         //product not found
         if (!$product) {
@@ -244,7 +243,6 @@ class ProductController extends Controller
             'message' => 'Product updated successfully',
             'data' => $data,
         ], 200);
-
     }
 
     /**
@@ -317,17 +315,18 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function history($id) {
+    public function history($id)
+    {
         $product = Product::find($id);
 
-        if(!$product) {
+        if (!$product) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Produk tidak ditemukan',
             ], 404);
         }
 
-        if(request()->has('start_date') && request()->has('end_date') && request()->start_date != '' && request()->end_date != '') {
+        if (request()->has('start_date') && request()->has('end_date') && request()->start_date != '' && request()->end_date != '') {
             $startDate = request()->start_date;
             $endDate = request()->end_date;
 
@@ -366,12 +365,12 @@ class ProductController extends Controller
             $transactions = TransactionDetail::where('product_id', $id)->orderBy('created_at', 'desc')->with('transaction.cashier')->get();
         }
 
-        $productExpired = $productExpired->map(function($item) {
+        $productExpired = $productExpired->map(function ($item) {
             $item['type'] = 'expired';
             return $item;
         });
 
-        $productOut = $productOut->map(function($item) {
+        $productOut = $productOut->map(function ($item) {
             $item['type'] = 'out';
             return $item;
         });
@@ -412,17 +411,17 @@ class ProductController extends Controller
 
         $product = Product::whereIn('id', $request->product_id)->get();
 
-//        $expiredDate = StockOpname::where('product_id', $product->id)->where('expired_date', '>=', date('Y-m-d'))->orderBy('expired_date', 'asc')->first()->expired_date ?? null;
-//
-//        if(is_null($expiredDate)) {
-//            $expiredDate = StockOpname::where('product_id', $product->id)->orderBy('expired_date', 'desc')->first()->expired_date ?? null;
-//        }
+        //        $expiredDate = StockOpname::where('product_id', $product->id)->where('expired_date', '>=', date('Y-m-d'))->orderBy('expired_date', 'asc')->first()->expired_date ?? null;
+        //
+        //        if(is_null($expiredDate)) {
+        //            $expiredDate = StockOpname::where('product_id', $product->id)->orderBy('expired_date', 'desc')->first()->expired_date ?? null;
+        //        }
 
         $packingDate = Carbon::now()->format('Y-m-d');
 
         $data = [];
 
-        foreach($product as $key => $item) {
+        foreach ($product as $key => $item) {
             $data[] = [
                 'id' => $item->id,
                 'product_name' => $item->product_name,
@@ -464,7 +463,7 @@ class ProductController extends Controller
 
         $originProduct = Product::find($request->origin_product_id);
 
-        if(is_null($originProduct)) {
+        if (is_null($originProduct)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Produk tidak ditemukan',
@@ -472,14 +471,14 @@ class ProductController extends Controller
         }
 
         // check stock
-        if($request->current_stock > $originProduct->stock) {
+        if ($request->current_stock > $originProduct->stock) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Stok produk asal melebihi stok yang ada',
             ], 400);
         }
 
-        if($request->current_stock == $originProduct->stock) {
+        if ($request->current_stock == $originProduct->stock) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Stok produk asal tidak berubah',
@@ -501,11 +500,11 @@ class ProductController extends Controller
 
         $product_id = [];
 
-        if($request->destination) {
-            foreach($request->destination as $destination) {
+        if ($request->destination) {
+            foreach ($request->destination as $destination) {
                 $destinationProduct = Product::find($destination['product_id']);
 
-                if(is_null($destinationProduct)) {
+                if (is_null($destinationProduct)) {
                     return response()->json([
                         'status' => 'error',
                         'message' => 'Produk tujuan tidak ditemukan',
