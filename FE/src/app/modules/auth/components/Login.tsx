@@ -8,16 +8,18 @@ import { getUserByToken, login } from '../core/_requests'
 import { toAbsoluteUrl } from '../../../../_metronic/helpers'
 import { useAuth } from '../core/Auth'
 import { setAuth } from '../core/AuthHelpers'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const loginSchema = Yup.object().shape({
   username: Yup.string()
-    .min(3, 'Minimum 3 symbols')
+    .min(3, 'Min 3 simbol')
     .max(50, 'Maximum 50 symbols')
-    .required('Username is required'),
+    .required('Username harus diisi!'),
   password: Yup.string()
-    .min(3, 'Minimum 3 symbols')
+    .min(3, 'Min 3 simbol')
     .max(50, 'Maximum 50 symbols')
-    .required('Password is required'),
+    .required('Password harus diisi!'),
 })
 
 const initialValues = {
@@ -54,7 +56,7 @@ export function Login() {
         saveAuth(undefined);
         setCurrentUser(undefined);
         setStatus('The login details are incorrect');
-        alert("Username or password is incorrect");
+        toast.error("Username atau Password yang anda masukkan salah, Hubungi admin");
       } finally {
         setLoading(false);
       }
@@ -161,6 +163,7 @@ export function Login() {
       {/* <footer className='mt-20 text-center'>
         <img src={toAbsoluteUrl("/LogoProjo.png")} alt="" className='h-150px ' />
       </footer> */}
+      <ToastContainer />
     </div>
   )
 }

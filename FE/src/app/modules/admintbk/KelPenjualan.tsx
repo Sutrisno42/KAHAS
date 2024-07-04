@@ -68,9 +68,20 @@ const KelPenjualan = () => {
     }, [showEditConfirmation, predikToEdit, predik]);
 
     const addPrediksi = async () => {
+        // Validasi input
+        if (
+            !newPredik.nama_produk ||
+            newPredik.data1 === 0 ||
+            newPredik.data2 === 0 ||
+            newPredik.data3 === 0 ||
+            newPredik.data4 === 0 ||
+            newPredik.data5 === 0
+        ) {
+            toast.error('Form harus diisi semua');
+            return;
+        }
 
         try {
-
             const response = await addPredik({
                 nama_produk: newPredik.nama_produk,
                 data1: newPredik.data1,
@@ -85,7 +96,9 @@ const KelPenjualan = () => {
                 console.log('Product created successfully');
                 showData();
                 setPredik([...predik, response.data]);
-                toast.success('Data Penjualan Produk berhasil ditambah', { position: toast.POSITION.TOP_RIGHT });
+                toast.success('Data Penjualan Produk berhasil ditambah', {
+                    position: toast.POSITION.TOP_RIGHT,
+                });
                 setNewPredik({
                     nama_produk: '',
                     data1: 0,
@@ -94,7 +107,6 @@ const KelPenjualan = () => {
                     data4: 0,
                     data5: 0,
                 });
-
             } else {
                 console.error('Gagal menambahkan data, respons:', response);
             }

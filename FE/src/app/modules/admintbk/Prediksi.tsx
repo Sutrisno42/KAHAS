@@ -17,7 +17,6 @@ interface searchproduk {
 
 const Prediksi = () => {
     usePageTitle('Prediksi');
-
     const [searchValue, setSearchValue] = useState('');
     const [filteredData, setFilteredData] = useState<searchproduk[]>([]);
     const [selectedProducts, setSelectedProducts] = useState<searchproduk[]>([]);
@@ -52,8 +51,6 @@ const Prediksi = () => {
             setFilteredData([]);
         }
     };
-
-
 
     // Function to calculate prediction
     const calculatePrediction = (selectedProduct: searchproduk) => {
