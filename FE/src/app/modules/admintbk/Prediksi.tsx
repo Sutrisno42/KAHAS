@@ -198,11 +198,11 @@ const Prediksi = () => {
                             <tr className='fw-bold text-bolder'>
                                 <th className='min-w-30px'>#</th>
                                 <th className='min-w-300px'>Nama Produk</th>
-                                <th className='min-w-30px'>Bulan 1</th>
-                                <th className='min-w-30px'>Bulan 2</th>
-                                <th className='min-w-30px'>Bulan 3</th>
-                                <th className='min-w-30px'>Bulan 4</th>
-                                <th className='min-w-30px'>Bulan 5</th>
+                                <th className='min-w-30px'>Bulan -5</th>
+                                <th className='min-w-30px'>Bulan -4</th>
+                                <th className='min-w-30px'>Bulan -3</th>
+                                <th className='min-w-30px'>Bulan -2</th>
+                                <th className='min-w-30px'>Bulan -1</th>
                                 <th className='min-w-80px text-success'>Prediksi</th>
                             </tr>
                         </thead>
